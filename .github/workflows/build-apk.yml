@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
@@ -20,29 +23,19 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-          flutter-version: '3.19.0'
 
-      - name: Initialize Project
+      - name: Generate Complete App
         run: |
-          flutter create --org com.bharatstream.app --project-name i_creator my_app
-          cd my_app
-          rm -f pubspec.yaml lib/main.dart
-
-      - name: Checkout Repo Files
-        uses: actions/checkout@v4
-        with:
-          path: repo
-
-      - name: Build APK File
-        run: |
-          cp repo/pubspec.yaml my_app/pubspec.yaml
-          cp repo/lib/main.dart my_app/lib/main.dart
-          cd my_app
+          flutter create --org com.bharatstream.app --project-name i_creator build_dir
+          cp pubspec.yaml build_dir/pubspec.yaml
+          cp lib/main.dart build_dir/lib/main.dart
+          cd build_dir
           flutter pub get
-          flutter build apk --release
+          flutter build apk --release --no-tree-shake-icons
 
-      - name: Upload APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: app-release
-          path: my_app/build/app/outputs/flutter-apk/app-release.apk
+          name: I-Creator-App
+          path: build_dir/build/app/outputs/flutter-apk/app-release.apk
+          
