@@ -10,13 +10,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'zulu'
+          distribution: 'temurin'
           java-version: '17'
 
       - name: Set up Flutter
@@ -24,20 +24,12 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Setup App & Configs
+      - name: Build Android App
         run: |
-          flutter create --org com.bharatstream.app --project-name i_creator my_app
-          cp pubspec.yaml my_app/pubspec.yaml
-          cp lib/main.dart my_app/lib/main.dart
-          cd my_app
-          
-          # Fix Android Permissions
-          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>' android/app/src/main/AndroidManifest.xml
-          
-          # Fix minSdkVersion to 21 for video & image picker plugins
-          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' android/app/build.gradle
-          sed -i 's/minSdkVersion = flutter.minSdkVersion/minSdkVersion = 21/g' android/app/build.gradle
-          
+          flutter create --org com.bharatstream.app --project-name i_creator build_project
+          cp pubspec.yaml build_project/pubspec.yaml
+          cp lib/main.dart build_project/lib/main.dart
+          cd build_project
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
 
@@ -45,4 +37,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: I-Creator-App
-          path: my_app/build/app/outputs/flutter-apk/app-release.apk
+          path: build_project/build/app/outputs/flutter-apk/app-release.apk
