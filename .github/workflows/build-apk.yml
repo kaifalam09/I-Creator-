@@ -8,46 +8,25 @@ on:
 
 jobs:
   build:
-    name: Build I-Creator APK
     runs-on: ubuntu-latest
 
     steps:
-      # ------------------------------------------------------
-      # 1. Checkout repository
-      # ------------------------------------------------------
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # ------------------------------------------------------
-      # 2. Setup Java
-      # ------------------------------------------------------
-      - name: Setup Java 17
+      - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: temurin
-          java-version: '17'
-          cache: gradle
+          distribution: zulu
+          java-version: "17"
 
-      # ------------------------------------------------------
-      # 3. Setup Flutter
-      # ------------------------------------------------------
-      - name: Setup Flutter
+      - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: "3.19.6"
           channel: stable
           cache: true
 
-      # ------------------------------------------------------
-      # 4. Show Flutter version
-      # ------------------------------------------------------
-      - name: Flutter Doctor
-        run: |
-          flutter --version
-          flutter doctor -v
-
-      # ------------------------------------------------------
-      # 5. Create Android/Flutter project
-      # ------------------------------------------------------
       - name: Create Flutter Project
         run: |
           flutter create \
@@ -55,42 +34,28 @@ jobs:
             --project-name i_creator \
             build_project
 
-      # ------------------------------------------------------
-      # 6. Copy application files
-      # ------------------------------------------------------
       - name: Copy App Files
         run: |
           cp pubspec.yaml build_project/pubspec.yaml
+          mkdir -p build_project/lib
           cp lib/main.dart build_project/lib/main.dart
 
-      # ------------------------------------------------------
-      # 7. Get dependencies
-      # ------------------------------------------------------
-      - name: Flutter Pub Get
+      - name: Install Dependencies
         working-directory: build_project
         run: |
           flutter clean
           flutter pub get
 
-      # ------------------------------------------------------
-      # 8. Analyze Dart code
-      # ------------------------------------------------------
-      - name: Analyze Flutter Code
+      - name: Analyze Project
         working-directory: build_project
         run: |
           flutter analyze
 
-      # ------------------------------------------------------
-      # 9. Build Release APK
-      # ------------------------------------------------------
-      - name: Build Release APK
+      - name: Build APK
         working-directory: build_project
         run: |
           flutter build apk --release --no-tree-shake-icons
 
-      # ------------------------------------------------------
-      # 10. Upload APK
-      # ------------------------------------------------------
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
