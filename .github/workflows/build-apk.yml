@@ -31,7 +31,7 @@ jobs:
           cp lib/main.dart build_project/lib/main.dart
           cd build_project
           flutter pub get
-          flutter build apk --release --no-tree-shake-icons
+          flutter build apk --release --no-tree-shake-icons --target-platform android-arm,android-arm64
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
