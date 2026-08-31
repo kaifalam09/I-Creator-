@@ -1,0 +1,102 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build I-Creator APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+
+      # --------------------------------------------------------
+      # 1. Checkout repository
+      # --------------------------------------------------------
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      # --------------------------------------------------------
+      # 2. Java 17
+      # --------------------------------------------------------
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      # --------------------------------------------------------
+      # 3. Flutter
+      # --------------------------------------------------------
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: '3.44.7'
+          cache: true
+
+      # --------------------------------------------------------
+      # 4. Check Flutter
+      # --------------------------------------------------------
+      - name: Flutter Version
+        run: |
+          flutter --version
+          dart --version
+
+      # --------------------------------------------------------
+      # 5. Create a clean Flutter project
+      # --------------------------------------------------------
+      - name: Create Flutter Project
+        run: |
+          flutter create \
+            --org com.icreator.app \
+            --project-name i_creator \
+            --platforms android \
+            build_project
+
+      # --------------------------------------------------------
+      # 6. Copy application files
+      # --------------------------------------------------------
+      - name: Copy App Files
+        run: |
+          cp pubspec.yaml build_project/pubspec.yaml
+          cp lib/main.dart build_project/lib/main.dart
+
+      # --------------------------------------------------------
+      # 7. Get dependencies
+      # --------------------------------------------------------
+      - name: Flutter Pub Get
+        working-directory: build_project
+        run: |
+          flutter clean
+          flutter pub get
+
+      # --------------------------------------------------------
+      # 8. Analyze Dart code
+      # --------------------------------------------------------
+      - name: Flutter Analyze
+        working-directory: build_project
+        run: flutter analyze
+
+      # --------------------------------------------------------
+      # 9. Build APK
+      # --------------------------------------------------------
+      - name: Build Release APK
+        working-directory: build_project
+        run: |
+          flutter build apk --release --no-tree-shake-icons
+
+      # --------------------------------------------------------
+      # 10. Upload APK
+      # --------------------------------------------------------
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: I-Creator-APK
+          path: build_project/build/app/outputs/flutter-apk/app-release.apk
+          if-no-files-found: error
