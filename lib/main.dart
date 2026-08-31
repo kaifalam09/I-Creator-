@@ -26,7 +26,7 @@ class UserSession {
 class VideoModel {
   final String title;
   final String channel;
-  final String type;
+  final String type; // long / reel
   final String views;
   final String? networkUrl;
   final String? filePath;
@@ -42,7 +42,7 @@ class VideoModel {
 }
 
 // ============================================================
-// VIDEO DATABASE
+// IN-MEMORY VIDEO DATABASE
 // ============================================================
 
 final List<VideoModel> globalVideos = [
@@ -87,13 +87,6 @@ class ICreatorApp extends StatelessWidget {
           backgroundColor: Color(0xFF0F0F0F),
           elevation: 0,
         ),
-        bottomNavigationBarTheme:
-            const BottomNavigationBarThemeData(
-          backgroundColor: Color(0xFF0F0F0F),
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey,
-          type: BottomNavigationBarType.fixed,
-        ),
       ),
       home: const MainScreen(),
     );
@@ -131,32 +124,50 @@ class _MainScreenState extends State<MainScreen> {
       ),
       builder: (ctx) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+          child: Wrap(
             children: [
-              const SizedBox(height: 10),
-
-              const Text(
-                'Create',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Create',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
+                  ],
                 ),
               ),
-
-              const SizedBox(height: 10),
 
               ListTile(
                 leading: const CircleAvatar(
                   backgroundColor: Color(0xFF333333),
                   child: Icon(
-                    Icons.play_circle_fill,
+                    Icons.play_circle_fill_rounded,
                     color: Colors.white,
                   ),
                 ),
-                title: const Text('Create a Short'),
+                title: const Text(
+                  'Create a Short',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 subtitle: const Text(
-                  'Upload a vertical Short video',
+                  'Select a vertical video from your phone',
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -172,9 +183,17 @@ class _MainScreenState extends State<MainScreen> {
                     color: Colors.white,
                   ),
                 ),
-                title: const Text('Upload a video'),
+                title: const Text(
+                  'Upload a video',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
                 subtitle: const Text(
                   'Select a video from your phone',
+                  style: TextStyle(
+                    color: Colors.grey,
+                  ),
                 ),
                 onTap: () {
                   Navigator.pop(ctx);
@@ -229,7 +248,9 @@ class _MainScreenState extends State<MainScreen> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Video select failed: $e'),
+          content: Text(
+            'Video select failed: $e',
+          ),
         ),
       );
     }
@@ -302,7 +323,7 @@ class _MainScreenState extends State<MainScreen> {
                     foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    final title =
+                    final String title =
                         titleController.text.trim();
 
                     if (title.isEmpty) {
@@ -432,7 +453,7 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final videos = globalVideos
+    final List<VideoModel> videos = globalVideos
         .where((video) => video.type == 'long')
         .toList();
 
@@ -461,7 +482,9 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(Icons.notifications_none),
+            icon: const Icon(
+              Icons.notifications_none,
+            ),
             onPressed: () {},
           ),
           IconButton(
@@ -474,13 +497,17 @@ class HomeScreen extends StatelessWidget {
           ? const Center(
               child: Text(
                 'No videos available',
-                style: TextStyle(color: Colors.grey),
+                style: TextStyle(
+                  color: Colors.grey,
+                ),
               ),
             )
           : ListView.builder(
               itemCount: videos.length,
               itemBuilder: (context, index) {
-                return VideoCard(video: videos[index]);
+                return VideoCard(
+                  video: videos[index],
+                );
               },
             ),
     );
@@ -520,7 +547,8 @@ class _VideoCardState extends State<VideoCard> {
           File(widget.video.filePath!),
         );
       } else if (widget.video.networkUrl != null) {
-        controller = VideoPlayerController.networkUrl(
+        controller =
+            VideoPlayerController.networkUrl(
           Uri.parse(widget.video.networkUrl!),
         );
       } else {
@@ -562,13 +590,26 @@ class _VideoCardState extends State<VideoCard> {
         child: Center(
           child: Text(
             error!,
-            style: const TextStyle(color: Colors.grey),
+            style: const TextStyle(
+              color: Colors.grey,
+            ),
           ),
         ),
       );
     } else if (controller != null &&
         controller!.value.isInitialized) {
-      player = VideoPlayer(controller!);
+      player = Stack(
+        alignment: Alignment.center,
+        children: [
+          VideoPlayer(controller!),
+          if (!controller!.value.isPlaying)
+            const Icon(
+              Icons.play_circle_fill,
+              size: 60,
+              color: Colors.white70,
+            ),
+        ],
+      );
     } else {
       player = const Center(
         child: CircularProgressIndicator(
@@ -578,13 +619,17 @@ class _VideoCardState extends State<VideoCard> {
     }
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment:
+          CrossAxisAlignment.start,
       children: [
         AspectRatio(
           aspectRatio: 16 / 9,
           child: GestureDetector(
             onTap: () {
-              if (controller == null) return;
+              if (controller == null ||
+                  !controller!.value.isInitialized) {
+                return;
+              }
 
               if (controller!.value.isPlaying) {
                 controller!.pause();
@@ -630,7 +675,8 @@ class _VideoCardState extends State<VideoCard> {
                     Text(
                       widget.video.title,
                       maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      overflow:
+                          TextOverflow.ellipsis,
                       style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -673,7 +719,7 @@ class ReelsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reels = globalVideos
+    final List<VideoModel> reels = globalVideos
         .where((video) => video.type == 'reel')
         .toList();
 
@@ -683,7 +729,9 @@ class ReelsScreen extends StatelessWidget {
         body: Center(
           child: Text(
             'No Shorts available',
-            style: TextStyle(color: Colors.grey),
+            style: TextStyle(
+              color: Colors.grey,
+            ),
           ),
         ),
       );
@@ -737,13 +785,16 @@ class _ShortVideoState extends State<ShortVideo> {
           File(widget.video.filePath!),
         );
       } else if (widget.video.networkUrl != null) {
-        controller = VideoPlayerController.networkUrl(
+        controller =
+            VideoPlayerController.networkUrl(
           Uri.parse(widget.video.networkUrl!),
         );
       } else {
-        setState(() {
-          error = 'Video unavailable';
-        });
+        if (mounted) {
+          setState(() {
+            error = 'Video unavailable';
+          });
+        }
         return;
       }
 
@@ -780,7 +831,9 @@ class _ShortVideoState extends State<ShortVideo> {
           Center(
             child: Text(
               error!,
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(
+                color: Colors.grey,
+              ),
             ),
           )
         else if (controller != null &&
@@ -832,8 +885,11 @@ class _ShortVideoState extends State<ShortVideo> {
               Text(
                 widget.video.title,
                 maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 14),
+                overflow:
+                    TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -892,7 +948,9 @@ class SubscriptionsScreen extends StatelessWidget {
       body: const Center(
         child: Text(
           'Channels you subscribe to will appear here.',
-          style: TextStyle(color: Colors.grey),
+          style: TextStyle(
+            color: Colors.grey,
+          ),
         ),
       ),
     );
@@ -916,15 +974,21 @@ class ProfileScreen extends StatefulWidget {
       _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState
+    extends State<ProfileScreen> {
+
+  // ==========================================================
+  // AUTH
+  // ==========================================================
+
   void openAuth() {
-    final emailController =
+    final TextEditingController emailController =
         TextEditingController();
 
-    final passwordController =
+    final TextEditingController passwordController =
         TextEditingController();
 
-    final nameController =
+    final TextEditingController nameController =
         TextEditingController();
 
     bool signUp = false;
@@ -972,7 +1036,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         decoration:
                             const InputDecoration(
                           labelText: 'Channel Name',
-                          border: OutlineInputBorder(),
+                          border:
+                              OutlineInputBorder(),
                         ),
                       ),
                       const SizedBox(height: 12),
@@ -985,7 +1050,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration:
                           const InputDecoration(
                         labelText: 'Email',
-                        border: OutlineInputBorder(),
+                        border:
+                            OutlineInputBorder(),
                       ),
                     ),
 
@@ -997,7 +1063,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration:
                           const InputDecoration(
                         labelText: 'Password',
-                        border: OutlineInputBorder(),
+                        border:
+                            OutlineInputBorder(),
                       ),
                     ),
 
@@ -1011,17 +1078,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ElevatedButton.styleFrom(
                           backgroundColor:
                               Colors.redAccent,
-                          foregroundColor: Colors.white,
+                          foregroundColor:
+                              Colors.white,
                         ),
                         onPressed: () {
-                          final email =
-                              emailController.text.trim();
+                          final String email =
+                              emailController.text
+                                  .trim();
 
-                          final password =
+                          final String password =
                               passwordController.text;
 
-                          final name =
-                              nameController.text.trim();
+                          final String name =
+                              nameController.text
+                                  .trim();
 
                           if (!email.contains('@') ||
                               password.length < 4) {
@@ -1049,8 +1119,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           }
 
                           setState(() {
-                            UserSession.isLoggedIn = true;
-                            UserSession.email = email;
+                            UserSession.isLoggedIn =
+                                true;
+
+                            UserSession.email =
+                                email;
+
                             UserSession.channelName =
                                 signUp
                                     ? name
@@ -1080,7 +1154,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               : 'Sign In',
                           style: const TextStyle(
                             fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            fontWeight:
+                                FontWeight.bold,
                           ),
                         ),
                       ),
@@ -1112,6 +1187,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  // ==========================================================
+  // LOGOUT
+  // ==========================================================
+
   void logout() {
     setState(() {
       UserSession.isLoggedIn = false;
@@ -1120,11 +1199,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
     });
 
     widget.onStateChanged();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Signed out successfully.'),
+      ),
+    );
   }
+
+  // ==========================================================
+  // BUILD
+  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
-    final loggedIn = UserSession.isLoggedIn;
+    final bool loggedIn = UserSession.isLoggedIn;
 
     return Scaffold(
       appBar: AppBar(
@@ -1180,7 +1269,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 50,
               child: ElevatedButton.icon(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor:
+                      Colors.redAccent,
                   foregroundColor: Colors.white,
                 ),
                 onPressed: openAuth,
@@ -1193,15 +1283,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
           if (loggedIn) ...[
             ListTile(
-              leading: const Icon(Icons.person),
-              title: const Text('Your Channel'),
+              leading:
+                  const Icon(Icons.person),
+              title:
+                  const Text('Your Channel'),
               subtitle: Text(
                 UserSession.channelName,
               ),
             ),
 
             ListTile(
-              leading: const Icon(Icons.email),
+              leading:
+                  const Icon(Icons.email),
               title: const Text('Email'),
               subtitle: Text(
                 UserSession.email,
@@ -1214,8 +1307,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               height: 50,
               child: OutlinedButton.icon(
                 onPressed: logout,
-                icon: const Icon(Icons.logout),
-                label: const Text('Sign Out'),
+                icon:
+                    const Icon(Icons.logout),
+                label:
+                    const Text('Sign Out'),
               ),
             ),
           ],
