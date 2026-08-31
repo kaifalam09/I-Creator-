@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:video_player/video_player.dart';
-import 'package:chewie/chewie.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,12 +26,12 @@ class UserSession {
 class VideoModel {
   final String title;
   final String channel;
-  final String type; // long / reel
+  final String type;
   final String views;
   final String? networkUrl;
   final String? filePath;
 
-  VideoModel({
+  const VideoModel({
     required this.title,
     required this.channel,
     required this.type,
@@ -43,11 +42,11 @@ class VideoModel {
 }
 
 // ============================================================
-// IN-MEMORY VIDEO DATABASE
+// VIDEO DATABASE
 // ============================================================
 
 final List<VideoModel> globalVideos = [
-  VideoModel(
+  const VideoModel(
     title: 'Welcome to I-Creator: Ultimate Platform Tour',
     channel: 'I-Creator Official',
     type: 'long',
@@ -55,7 +54,7 @@ final List<VideoModel> globalVideos = [
     networkUrl:
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
   ),
-  VideoModel(
+  const VideoModel(
     title: 'Top Speed Drift Highlights #Shorts',
     channel: 'SpeedRunner',
     type: 'reel',
@@ -66,7 +65,7 @@ final List<VideoModel> globalVideos = [
 ];
 
 // ============================================================
-// MAIN APP
+// APP
 // ============================================================
 
 class ICreatorApp extends StatelessWidget {
@@ -77,8 +76,13 @@ class ICreatorApp extends StatelessWidget {
     return MaterialApp(
       title: 'I-Creator',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData.dark().copyWith(
+      theme: ThemeData(
+        brightness: Brightness.dark,
         scaffoldBackgroundColor: const Color(0xFF0F0F0F),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.redAccent,
+          brightness: Brightness.dark,
+        ),
         appBarTheme: const AppBarTheme(
           backgroundColor: Color(0xFF0F0F0F),
           elevation: 0,
@@ -108,110 +112,77 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  int _currentIndex = 0;
+  int currentIndex = 0;
 
-  final ImagePicker _picker = ImagePicker();
+  final ImagePicker picker = ImagePicker();
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // CREATE MENU
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  void _showYouTubePlusSheet() {
+  void showCreateMenu() {
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF212121),
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(
-          top: Radius.circular(16),
+          top: Radius.circular(20),
         ),
       ),
       builder: (ctx) {
         return SafeArea(
-          child: Wrap(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                child: Row(
-                  mainAxisAlignment:
-                      MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Create',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.pop(ctx);
-                      },
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 10),
 
-              // CREATE SHORT
-              ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Color(0xFF333333),
-                  child: Icon(
-                    Icons.play_circle_fill_rounded,
-                    color: Colors.white,
-                  ),
+              const Text(
+                'Create',
+                style: TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-                title: const Text(
-                  'Create a Short',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                subtitle: const Text(
-                  'Share a 60-second vertical video',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _pickAndUploadVideo('reel');
-                },
-              ),
-
-              // UPLOAD VIDEO
-              ListTile(
-                leading: const CircleAvatar(
-                  backgroundColor: Color(0xFF333333),
-                  child: Icon(
-                    Icons.upload_file_rounded,
-                    color: Colors.white,
-                  ),
-                ),
-                title: const Text(
-                  'Upload a video',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                subtitle: const Text(
-                  'Select a video file from your phone storage',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey,
-                  ),
-                ),
-                onTap: () {
-                  Navigator.pop(ctx);
-                  _pickAndUploadVideo('long');
-                },
               ),
 
               const SizedBox(height: 10),
+
+              ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFF333333),
+                  child: Icon(
+                    Icons.play_circle_fill,
+                    color: Colors.white,
+                  ),
+                ),
+                title: const Text('Create a Short'),
+                subtitle: const Text(
+                  'Upload a vertical Short video',
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  pickVideo('reel');
+                },
+              ),
+
+              ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFF333333),
+                  child: Icon(
+                    Icons.video_library,
+                    color: Colors.white,
+                  ),
+                ),
+                title: const Text('Upload a video'),
+                subtitle: const Text(
+                  'Select a video from your phone',
+                ),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  pickVideo('long');
+                },
+              ),
+
+              const SizedBox(height: 15),
             ],
           ),
         );
@@ -219,23 +190,22 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // PICK VIDEO
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  Future<void> _pickAndUploadVideo(String videoType) async {
+  Future<void> pickVideo(String type) async {
     if (!UserSession.isLoggedIn) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text(
-            'Please sign in first to upload videos!',
+            'Please sign in first to upload videos.',
           ),
           action: SnackBarAction(
-            label: 'Sign In',
-            textColor: Colors.redAccent,
+            label: 'SIGN IN',
             onPressed: () {
               setState(() {
-                _currentIndex = 4;
+                currentIndex = 4;
               });
             },
           ),
@@ -245,35 +215,31 @@ class _MainScreenState extends State<MainScreen> {
     }
 
     try {
-      final XFile? pickedFile =
-          await _picker.pickVideo(
+      final XFile? file = await picker.pickVideo(
         source: ImageSource.gallery,
       );
 
-      if (pickedFile != null && mounted) {
-        _showVideoDetailsForm(
-          pickedFile.path,
-          videoType,
-        );
+      if (file == null || !mounted) {
+        return;
       }
+
+      showVideoDetails(file.path, type);
     } catch (e) {
       if (!mounted) return;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(
-            'Unable to select video: $e',
-          ),
+          content: Text('Video select failed: $e'),
         ),
       );
     }
   }
 
-  // ----------------------------------------------------------
+  // ==========================================================
   // VIDEO DETAILS
-  // ----------------------------------------------------------
+  // ==========================================================
 
-  void _showVideoDetailsForm(
+  void showVideoDetails(
     String filePath,
     String type,
   ) {
@@ -292,11 +258,11 @@ class _MainScreenState extends State<MainScreen> {
       builder: (ctx) {
         return Padding(
           padding: EdgeInsets.only(
-            bottom:
-                MediaQuery.of(ctx).viewInsets.bottom + 20,
             left: 20,
             right: 20,
             top: 20,
+            bottom:
+                MediaQuery.of(ctx).viewInsets.bottom + 20,
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -308,32 +274,35 @@ class _MainScreenState extends State<MainScreen> {
                     ? 'Add details to Short'
                     : 'Add details to Video',
                 style: const TextStyle(
-                  fontSize: 18,
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
                 ),
               ),
 
-              const SizedBox(height: 12),
+              const SizedBox(height: 15),
 
               TextField(
                 controller: titleController,
+                textInputAction: TextInputAction.done,
                 decoration: const InputDecoration(
-                  labelText: 'Create a title (required)',
+                  labelText: 'Video title',
+                  hintText: 'Enter a title',
                   border: OutlineInputBorder(),
                 ),
               ),
 
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
 
               SizedBox(
                 width: double.infinity,
-                height: 48,
+                height: 50,
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.redAccent,
+                    foregroundColor: Colors.white,
                   ),
                   onPressed: () {
-                    final String title =
+                    final title =
                         titleController.text.trim();
 
                     if (title.isEmpty) {
@@ -341,7 +310,7 @@ class _MainScreenState extends State<MainScreen> {
                           .showSnackBar(
                         const SnackBar(
                           content: Text(
-                            'Please enter a video title.',
+                            'Please enter a title.',
                           ),
                         ),
                       );
@@ -383,7 +352,7 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ),
 
-              const SizedBox(height: 10),
+              const SizedBox(height: 5),
             ],
           ),
         );
@@ -391,16 +360,16 @@ class _MainScreenState extends State<MainScreen> {
     );
   }
 
-  // ----------------------------------------------------------
-  // MAIN BUILD
-  // ----------------------------------------------------------
+  // ==========================================================
+  // BUILD
+  // ==========================================================
 
   @override
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       const HomeScreen(),
       const ReelsScreen(),
-      const Center(),
+      const SizedBox(),
       const SubscriptionsScreen(),
       ProfileScreen(
         onStateChanged: () {
@@ -410,54 +379,42 @@ class _MainScreenState extends State<MainScreen> {
     ];
 
     return Scaffold(
-      body: screens[_currentIndex],
-
+      body: screens[currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-
+        currentIndex: currentIndex,
         onTap: (index) {
           if (index == 2) {
-            _showYouTubePlusSheet();
-          } else {
-            setState(() {
-              _currentIndex = index;
-            });
+            showCreateMenu();
+            return;
           }
-        },
 
+          setState(() {
+            currentIndex = index;
+          });
+        },
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home_filled),
             label: 'Home',
           ),
-
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.play_circle_outline,
-            ),
+            icon: Icon(Icons.play_circle_outline),
             label: 'Shorts',
           ),
-
           BottomNavigationBarItem(
             icon: Icon(
-              Icons.add_circle_outline,
+              Icons.add_circle,
               size: 36,
               color: Colors.white,
             ),
             label: '',
           ),
-
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.subscriptions_outlined,
-            ),
+            icon: Icon(Icons.subscriptions_outlined),
             label: 'Subscriptions',
           ),
-
           BottomNavigationBarItem(
-            icon: Icon(
-              Icons.account_circle_outlined,
-            ),
+            icon: Icon(Icons.account_circle_outlined),
             label: 'You',
           ),
         ],
@@ -467,7 +424,7 @@ class _MainScreenState extends State<MainScreen> {
 }
 
 // ============================================================
-// HOME SCREEN
+// HOME
 // ============================================================
 
 class HomeScreen extends StatelessWidget {
@@ -475,41 +432,36 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<VideoModel> longVideos =
-        globalVideos
-            .where((video) => video.type == 'long')
-            .toList();
+    final videos = globalVideos
+        .where((video) => video.type == 'long')
+        .toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: Row(
-          children: const [
+        title: const Row(
+          children: [
             Icon(
               Icons.play_arrow_rounded,
               color: Colors.redAccent,
               size: 32,
             ),
-            SizedBox(width: 6),
+            SizedBox(width: 5),
             Text(
               'I-Creator',
               style: TextStyle(
-                fontWeight: FontWeight.bold,
                 fontSize: 21,
-                letterSpacing: -0.5,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ],
         ),
-
         actions: [
           IconButton(
             icon: const Icon(Icons.cast),
             onPressed: () {},
           ),
           IconButton(
-            icon: const Icon(
-              Icons.notifications_none,
-            ),
+            icon: const Icon(Icons.notifications_none),
             onPressed: () {},
           ),
           IconButton(
@@ -518,22 +470,17 @@ class HomeScreen extends StatelessWidget {
           ),
         ],
       ),
-
-      body: longVideos.isEmpty
+      body: videos.isEmpty
           ? const Center(
               child: Text(
                 'No videos available',
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
+                style: TextStyle(color: Colors.grey),
               ),
             )
           : ListView.builder(
-              itemCount: longVideos.length,
+              itemCount: videos.length,
               itemBuilder: (context, index) {
-                return YouTubeVideoCard(
-                  video: longVideos[index],
-                );
+                return VideoCard(video: videos[index]);
               },
             ),
     );
@@ -541,146 +488,133 @@ class HomeScreen extends StatelessWidget {
 }
 
 // ============================================================
-// YOUTUBE VIDEO CARD
+// VIDEO CARD
 // ============================================================
 
-class YouTubeVideoCard extends StatefulWidget {
+class VideoCard extends StatefulWidget {
   final VideoModel video;
 
-  const YouTubeVideoCard({
+  const VideoCard({
     super.key,
     required this.video,
   });
 
   @override
-  State<YouTubeVideoCard> createState() =>
-      _YouTubeVideoCardState();
+  State<VideoCard> createState() => _VideoCardState();
 }
 
-class _YouTubeVideoCardState
-    extends State<YouTubeVideoCard> {
-  VideoPlayerController? _controller;
-  ChewieController? _chewieController;
-
-  String? _error;
+class _VideoCardState extends State<VideoCard> {
+  VideoPlayerController? controller;
+  String? error;
 
   @override
   void initState() {
     super.initState();
-    _initializeVideo();
+    initializeVideo();
   }
 
-  Future<void> _initializeVideo() async {
+  Future<void> initializeVideo() async {
     try {
       if (widget.video.filePath != null) {
-        _controller =
-            VideoPlayerController.file(
+        controller = VideoPlayerController.file(
           File(widget.video.filePath!),
         );
       } else if (widget.video.networkUrl != null) {
-        _controller =
-            VideoPlayerController.networkUrl(
+        controller = VideoPlayerController.networkUrl(
           Uri.parse(widget.video.networkUrl!),
         );
       } else {
-        setState(() {
-          _error = 'Video source not available.';
-        });
+        if (mounted) {
+          setState(() {
+            error = 'Video source unavailable';
+          });
+        }
         return;
       }
 
-      await _controller!.initialize();
+      await controller!.initialize();
 
-      if (!mounted) return;
-
-      _chewieController = ChewieController(
-        videoPlayerController: _controller!,
-        autoPlay: false,
-        looping: false,
-        aspectRatio: 16 / 9,
-        allowFullScreen: true,
-        allowMuting: true,
-        showControls: true,
-      );
-
-      setState(() {});
+      if (mounted) {
+        setState(() {});
+      }
     } catch (e) {
-      if (!mounted) return;
-
-      setState(() {
-        _error = 'Unable to load video.';
-      });
+      if (mounted) {
+        setState(() {
+          error = 'Unable to load video';
+        });
+      }
     }
   }
 
   @override
   void dispose() {
-    _chewieController?.dispose();
-    _controller?.dispose();
+    controller?.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    Widget videoWidget;
+    Widget player;
 
-    if (_error != null) {
-      videoWidget = Container(
+    if (error != null) {
+      player = Container(
         color: Colors.black,
         child: Center(
           child: Text(
-            _error!,
-            style: const TextStyle(
-              color: Colors.grey,
-            ),
+            error!,
+            style: const TextStyle(color: Colors.grey),
           ),
         ),
       );
-    } else if (_chewieController != null &&
-        _controller != null &&
-        _controller!.value.isInitialized) {
-      videoWidget = Chewie(
-        controller: _chewieController!,
-      );
+    } else if (controller != null &&
+        controller!.value.isInitialized) {
+      player = VideoPlayer(controller!);
     } else {
-      videoWidget = Container(
-        color: Colors.black26,
-        child: const Center(
-          child: CircularProgressIndicator(
-            color: Colors.redAccent,
-          ),
+      player = const Center(
+        child: CircularProgressIndicator(
+          color: Colors.redAccent,
         ),
       );
     }
 
     return Column(
-      crossAxisAlignment:
-          CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         AspectRatio(
           aspectRatio: 16 / 9,
-          child: videoWidget,
+          child: GestureDetector(
+            onTap: () {
+              if (controller == null) return;
+
+              if (controller!.value.isPlaying) {
+                controller!.pause();
+              } else {
+                controller!.play();
+              }
+
+              setState(() {});
+            },
+            child: Container(
+              color: Colors.black,
+              child: player,
+            ),
+          ),
         ),
 
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 12,
-            vertical: 12,
-          ),
+          padding: const EdgeInsets.all(12),
           child: Row(
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
               CircleAvatar(
-                backgroundColor:
-                    Colors.redAccent,
+                backgroundColor: Colors.redAccent,
                 child: Text(
                   widget.video.channel.isNotEmpty
                       ? widget.video.channel[0]
                           .toUpperCase()
                       : 'U',
                   style: const TextStyle(
-                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -695,16 +629,15 @@ class _YouTubeVideoCardState
                   children: [
                     Text(
                       widget.video.title,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 15,
-                      ),
                       maxLines: 2,
-                      overflow:
-                          TextOverflow.ellipsis,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
 
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 5),
 
                     Text(
                       '${widget.video.channel} • ${widget.video.views}',
@@ -719,21 +652,20 @@ class _YouTubeVideoCardState
 
               const Icon(
                 Icons.more_vert,
-                size: 20,
                 color: Colors.grey,
               ),
             ],
           ),
         ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 5),
       ],
     );
   }
 }
 
 // ============================================================
-// SHORTS / REELS SCREEN
+// SHORTS
 // ============================================================
 
 class ReelsScreen extends StatelessWidget {
@@ -741,10 +673,9 @@ class ReelsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<VideoModel> reels =
-        globalVideos
-            .where((video) => video.type == 'reel')
-            .toList();
+    final reels = globalVideos
+        .where((video) => video.type == 'reel')
+        .toList();
 
     if (reels.isEmpty) {
       return const Scaffold(
@@ -752,5 +683,544 @@ class ReelsScreen extends StatelessWidget {
         body: Center(
           child: Text(
             'No Shorts available',
-            style: TextStyle(
-              color: Colors
+            style: TextStyle(color: Colors.grey),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: PageView.builder(
+        scrollDirection: Axis.vertical,
+        itemCount: reels.length,
+        itemBuilder: (context, index) {
+          return ShortVideo(
+            video: reels[index],
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ============================================================
+// SHORT VIDEO
+// ============================================================
+
+class ShortVideo extends StatefulWidget {
+  final VideoModel video;
+
+  const ShortVideo({
+    super.key,
+    required this.video,
+  });
+
+  @override
+  State<ShortVideo> createState() => _ShortVideoState();
+}
+
+class _ShortVideoState extends State<ShortVideo> {
+  VideoPlayerController? controller;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  Future<void> initialize() async {
+    try {
+      if (widget.video.filePath != null) {
+        controller = VideoPlayerController.file(
+          File(widget.video.filePath!),
+        );
+      } else if (widget.video.networkUrl != null) {
+        controller = VideoPlayerController.networkUrl(
+          Uri.parse(widget.video.networkUrl!),
+        );
+      } else {
+        setState(() {
+          error = 'Video unavailable';
+        });
+        return;
+      }
+
+      await controller!.initialize();
+      await controller!.setLooping(true);
+      await controller!.play();
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          error = 'Unable to load Short';
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Container(color: Colors.black),
+
+        if (error != null)
+          Center(
+            child: Text(
+              error!,
+              style: const TextStyle(color: Colors.grey),
+            ),
+          )
+        else if (controller != null &&
+            controller!.value.isInitialized)
+          GestureDetector(
+            onTap: () {
+              if (controller!.value.isPlaying) {
+                controller!.pause();
+              } else {
+                controller!.play();
+              }
+
+              setState(() {});
+            },
+            child: FittedBox(
+              fit: BoxFit.cover,
+              child: SizedBox(
+                width: controller!.value.size.width,
+                height: controller!.value.size.height,
+                child: VideoPlayer(controller!),
+              ),
+            ),
+          )
+        else
+          const Center(
+            child: CircularProgressIndicator(
+              color: Colors.redAccent,
+            ),
+          ),
+
+        Positioned(
+          left: 16,
+          right: 80,
+          bottom: 30,
+          child: Column(
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            children: [
+              Text(
+                '@${widget.video.channel}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 8),
+
+              Text(
+                widget.video.title,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 14),
+              ),
+            ],
+          ),
+        ),
+
+        Positioned(
+          right: 14,
+          bottom: 35,
+          child: Column(
+            children: [
+              const Icon(
+                Icons.thumb_up_alt_outlined,
+                size: 30,
+              ),
+              const SizedBox(height: 5),
+              const Text('42K'),
+
+              const SizedBox(height: 20),
+
+              const Icon(
+                Icons.comment_outlined,
+                size: 30,
+              ),
+              const SizedBox(height: 5),
+              const Text('1.8K'),
+
+              const SizedBox(height: 20),
+
+              const Icon(
+                Icons.share,
+                size: 30,
+              ),
+              const SizedBox(height: 5),
+              const Text('Share'),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ============================================================
+// SUBSCRIPTIONS
+// ============================================================
+
+class SubscriptionsScreen extends StatelessWidget {
+  const SubscriptionsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Subscriptions'),
+      ),
+      body: const Center(
+        child: Text(
+          'Channels you subscribe to will appear here.',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// PROFILE
+// ============================================================
+
+class ProfileScreen extends StatefulWidget {
+  final VoidCallback onStateChanged;
+
+  const ProfileScreen({
+    super.key,
+    required this.onStateChanged,
+  });
+
+  @override
+  State<ProfileScreen> createState() =>
+      _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  void openAuth() {
+    final emailController =
+        TextEditingController();
+
+    final passwordController =
+        TextEditingController();
+
+    final nameController =
+        TextEditingController();
+
+    bool signUp = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: const Color(0xFF1E1E1E),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(20),
+        ),
+      ),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setSheetState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                left: 20,
+                right: 20,
+                top: 20,
+                bottom:
+                    MediaQuery.of(ctx).viewInsets.bottom +
+                        20,
+              ),
+              child: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      signUp
+                          ? 'Create Your Channel'
+                          : 'Sign In',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+
+                    const SizedBox(height: 20),
+
+                    if (signUp) ...[
+                      TextField(
+                        controller: nameController,
+                        decoration:
+                            const InputDecoration(
+                          labelText: 'Channel Name',
+                          border: OutlineInputBorder(),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                    ],
+
+                    TextField(
+                      controller: emailController,
+                      keyboardType:
+                          TextInputType.emailAddress,
+                      decoration:
+                          const InputDecoration(
+                        labelText: 'Email',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    TextField(
+                      controller: passwordController,
+                      obscureText: true,
+                      decoration:
+                          const InputDecoration(
+                        labelText: 'Password',
+                        border: OutlineInputBorder(),
+                      ),
+                    ),
+
+                    const SizedBox(height: 18),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        style:
+                            ElevatedButton.styleFrom(
+                          backgroundColor:
+                              Colors.redAccent,
+                          foregroundColor: Colors.white,
+                        ),
+                        onPressed: () {
+                          final email =
+                              emailController.text.trim();
+
+                          final password =
+                              passwordController.text;
+
+                          final name =
+                              nameController.text.trim();
+
+                          if (!email.contains('@') ||
+                              password.length < 4) {
+                            ScaffoldMessenger.of(ctx)
+                                .showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Enter a valid email and password of at least 4 characters.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          if (signUp && name.isEmpty) {
+                            ScaffoldMessenger.of(ctx)
+                                .showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Please enter a channel name.',
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          setState(() {
+                            UserSession.isLoggedIn = true;
+                            UserSession.email = email;
+                            UserSession.channelName =
+                                signUp
+                                    ? name
+                                    : email
+                                        .split('@')
+                                        .first;
+                          });
+
+                          widget.onStateChanged();
+
+                          Navigator.pop(ctx);
+
+                          ScaffoldMessenger.of(context)
+                              .showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                signUp
+                                    ? 'Channel created successfully!'
+                                    : 'Signed in successfully!',
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          signUp
+                              ? 'Create Account'
+                              : 'Sign In',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    const SizedBox(height: 10),
+
+                    TextButton(
+                      onPressed: () {
+                        setSheetState(() {
+                          signUp = !signUp;
+                        });
+                      },
+                      child: Text(
+                        signUp
+                            ? 'Already have an account? Sign In'
+                            : 'Create a new account',
+                      ),
+                    ),
+
+                    const SizedBox(height: 5),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void logout() {
+    setState(() {
+      UserSession.isLoggedIn = false;
+      UserSession.email = '';
+      UserSession.channelName = 'Guest User';
+    });
+
+    widget.onStateChanged();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final loggedIn = UserSession.isLoggedIn;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('You'),
+      ),
+      body: ListView(
+        padding: const EdgeInsets.all(20),
+        children: [
+          CircleAvatar(
+            radius: 42,
+            backgroundColor: Colors.redAccent,
+            child: Text(
+              UserSession.channelName.isNotEmpty
+                  ? UserSession.channelName[0]
+                      .toUpperCase()
+                  : 'U',
+              style: const TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 15),
+
+          Center(
+            child: Text(
+              UserSession.channelName,
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 5),
+
+          Center(
+            child: Text(
+              loggedIn
+                  ? UserSession.email
+                  : 'Not signed in',
+              style: const TextStyle(
+                color: Colors.grey,
+              ),
+            ),
+          ),
+
+          const SizedBox(height: 25),
+
+          if (!loggedIn)
+            SizedBox(
+              height: 50,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                  foregroundColor: Colors.white,
+                ),
+                onPressed: openAuth,
+                icon: const Icon(Icons.login),
+                label: const Text(
+                  'Sign In / Create Account',
+                ),
+              ),
+            ),
+
+          if (loggedIn) ...[
+            ListTile(
+              leading: const Icon(Icons.person),
+              title: const Text('Your Channel'),
+              subtitle: Text(
+                UserSession.channelName,
+              ),
+            ),
+
+            ListTile(
+              leading: const Icon(Icons.email),
+              title: const Text('Email'),
+              subtitle: Text(
+                UserSession.email,
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            SizedBox(
+              height: 50,
+              child: OutlinedButton.icon(
+                onPressed: logout,
+                icon: const Icon(Icons.logout),
+                label: const Text('Sign Out'),
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
