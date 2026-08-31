@@ -1,5 +1,5 @@
 name: i_creator
-description: "A video streaming app"
+description: "A YouTube styled video streaming and uploading app"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,9 +9,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  supabase_flutter: ^2.5.6
   video_player: ^2.8.6
   chewie: ^1.8.1
+  image_picker: ^1.0.7
   cupertino_icons: ^1.0.6
 
 dev_dependencies:
