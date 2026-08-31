@@ -51,7 +51,7 @@ jobs:
         run: |
           cp pubspec.yaml build_project/pubspec.yaml
           cp -r lib/* build_project/lib/ 
-
+          rm -rf build_project/test
 
       # =====================================================
       # 5. SETUP JAVA
