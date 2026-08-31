@@ -10,28 +10,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout Code
         uses: actions/checkout@v4
 
       - name: Set up Java
         uses: actions/setup-java@v4
         with:
-          distribution: 'temurin'
+          distribution: 'zulu'
           java-version: '17'
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.19.6'
           channel: 'stable'
 
-      - name: Build Android App
+      - name: Generate & Configure Project
         run: |
           flutter create --org com.bharatstream.app --project-name i_creator build_project
           cp pubspec.yaml build_project/pubspec.yaml
           cp lib/main.dart build_project/lib/main.dart
           cd build_project
+          
+          # Set compileSdk and targetSdk properly
           flutter pub get
-          flutter build apk --release --no-tree-shake-icons --target-platform android-arm,android-arm64
+          flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
