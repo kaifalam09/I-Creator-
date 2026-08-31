@@ -831,3 +831,304 @@ class ReelsScreen extends StatelessWidget {
     );
   }
 }
+// ============================================================
+// SHORT VIDEO (used inside ReelsScreen)
+// ============================================================
+
+class ShortVideo extends StatefulWidget {
+  final VideoModel video;
+
+  const ShortVideo({super.key, required this.video});
+
+  @override
+  State<ShortVideo> createState() => _ShortVideoState();
+}
+
+class _ShortVideoState extends State<ShortVideo> {
+  VideoPlayerController? controller;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeVideo();
+  }
+
+  Future<void> initializeVideo() async {
+    try {
+      if (widget.video.filePath != null) {
+        controller = VideoPlayerController.file(
+          File(widget.video.filePath!),
+        );
+      } else if (widget.video.networkUrl != null) {
+        controller = VideoPlayerController.networkUrl(
+          Uri.parse(widget.video.networkUrl!),
+        );
+      } else {
+        if (mounted) {
+          setState(() {
+            error = 'Video source unavailable';
+          });
+        }
+        return;
+      }
+
+      await controller!.initialize();
+      controller!.setLooping(true);
+      controller!.play();
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          error = 'Unable to load video';
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget player;
+
+    if (error != null) {
+      player = Center(
+        child: Text(
+          error!,
+          style: const TextStyle(color: Colors.grey),
+        ),
+      );
+    } else if (controller != null && controller!.value.isInitialized) {
+      player = FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: controller!.value.size.width,
+          height: controller!.value.size.height,
+          child: VideoPlayer(controller!),
+        ),
+      );
+    } else {
+      player = const Center(
+        child: CircularProgressIndicator(color: Colors.redAccent),
+      );
+    }
+
+    return GestureDetector(
+      onTap: () {
+        if (controller == null || !controller!.value.isInitialized) return;
+        setState(() {
+          controller!.value.isPlaying
+              ? controller!.pause()
+              : controller!.play();
+        });
+      },
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Container(color: Colors.black, child: player),
+          Positioned(
+            left: 16,
+            right: 70,
+            bottom: 30,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.video.channel,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  widget.video.title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(color: Colors.white, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ============================================================
+// SUBSCRIPTIONS SCREEN
+// ============================================================
+
+class SubscriptionsScreen extends StatelessWidget {
+  const SubscriptionsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Subscriptions',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: const Center(
+        child: Text(
+          'No subscriptions yet',
+          style: TextStyle(color: Colors.grey),
+        ),
+      ),
+    );
+  }
+}
+
+// ============================================================
+// PROFILE SCREEN
+// ============================================================
+
+class ProfileScreen extends StatefulWidget {
+  final VoidCallback onStateChanged;
+
+  const ProfileScreen({super.key, required this.onStateChanged});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController channelController = TextEditingController();
+
+  void signIn() {
+    if (emailController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter an email.')),
+      );
+      return;
+    }
+
+    setState(() {
+      UserSession.isLoggedIn = true;
+      UserSession.email = emailController.text.trim();
+      UserSession.channelName = channelController.text.trim().isNotEmpty
+          ? channelController.text.trim()
+          : 'My Channel';
+    });
+
+    widget.onStateChanged();
+  }
+
+  void signOut() {
+    setState(() {
+      UserSession.isLoggedIn = false;
+      UserSession.email = '';
+      UserSession.channelName = 'Guest User';
+    });
+    widget.onStateChanged();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'You',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(20),
+        child: UserSession.isLoggedIn
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 40,
+                    backgroundColor: Colors.redAccent,
+                    child: Text(
+                      UserSession.channelName.isNotEmpty
+                          ? UserSession.channelName[0].toUpperCase()
+                          : 'U',
+                      style: const TextStyle(fontSize: 30, color: Colors.white),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    UserSession.channelName,
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    UserSession.email,
+                    style: const TextStyle(color: Colors.grey),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                      ),
+                      onPressed: signOut,
+                      child: const Text('Sign out'),
+                    ),
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Sign in to I-Creator',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: channelController,
+                    decoration: const InputDecoration(
+                      labelText: 'Channel name',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                      ),
+                      onPressed: signIn,
+                      child: const Text('Sign in'),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }
+}
