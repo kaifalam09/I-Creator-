@@ -50,7 +50,7 @@ jobs:
       - name: Copy App Files
         run: |
           cp pubspec.yaml build_project/pubspec.yaml
-          cp -r lib build_project/lib
+          cp -r lib/* build_project/lib/ 
 
 
       # =====================================================
