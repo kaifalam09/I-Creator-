@@ -795,4 +795,39 @@ class _VideoCardState
 // ============================================================
 
 class ReelsScreen extends StatelessWidget {
-  const ReelsScreen({super.ke
+  const ReelsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final reels = globalVideos
+        .where((video) => video.type == 'reel')
+        .toList();
+
+    if (reels.isEmpty) {
+      return const Scaffold(
+        backgroundColor: Colors.black,
+        body: Center(
+          child: Text(
+            'No Shorts available',
+            style: TextStyle(
+              color: Colors.grey,
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: PageView.builder(
+        scrollDirection: Axis.vertical,
+        itemCount: reels.length,
+        itemBuilder: (context, index) {
+          return ShortVideo(
+            video: reels[index],
+          );
+        },
+      ),
+    );
+  }
+}
