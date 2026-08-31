@@ -24,15 +24,19 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Setup & Build Android APK
+      - name: Setup App & Configs
         run: |
           flutter create --org com.bharatstream.app --project-name i_creator my_app
           cp pubspec.yaml my_app/pubspec.yaml
           cp lib/main.dart my_app/lib/main.dart
           cd my_app
           
-          # Add Internet & Storage Permissions
+          # Fix Android Permissions
           sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>' android/app/src/main/AndroidManifest.xml
+          
+          # Fix minSdkVersion to 21 for video & image picker plugins
+          sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' android/app/build.gradle
+          sed -i 's/minSdkVersion = flutter.minSdkVersion/minSdkVersion = 21/g' android/app/build.gradle
           
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
@@ -42,4 +46,3 @@ jobs:
         with:
           name: I-Creator-App
           path: my_app/build/app/outputs/flutter-apk/app-release.apk
-          
