@@ -43,7 +43,11 @@ jobs:
             --platforms android \
             build_project
 
-
+      - name: Print SHA-1 Fingerprint
+        working-directory: build_project/android
+        run: |
+          chmod +x gradlew
+          ./gradlew signingReport
       # =====================================================
       # 4. COPY APP FILES
       # =====================================================
