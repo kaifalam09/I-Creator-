@@ -24,12 +24,16 @@ jobs:
         with:
           channel: 'stable'
 
-      - name: Generate Complete App
+      - name: Setup & Build Android APK
         run: |
-          flutter create --org com.bharatstream.app --project-name i_creator build_dir
-          cp pubspec.yaml build_dir/pubspec.yaml
-          cp lib/main.dart build_dir/lib/main.dart
-          cd build_dir
+          flutter create --org com.bharatstream.app --project-name i_creator my_app
+          cp pubspec.yaml my_app/pubspec.yaml
+          cp lib/main.dart my_app/lib/main.dart
+          cd my_app
+          
+          # Add Internet & Storage Permissions
+          sed -i '/<application/i \    <uses-permission android:name="android.permission.INTERNET"/>\n    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>\n    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO"/>' android/app/src/main/AndroidManifest.xml
+          
           flutter pub get
           flutter build apk --release --no-tree-shake-icons
 
@@ -37,5 +41,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: I-Creator-App
-          path: build_dir/build/app/outputs/flutter-apk/app-release.apk
+          path: my_app/build/app/outputs/flutter-apk/app-release.apk
           
