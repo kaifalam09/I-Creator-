@@ -1042,8 +1042,43 @@ class SubscriptionsScreen extends StatelessWidget {
     );
   }
 }
-// ============================================================
-// PROFILE SCREEN (Google Sign-In)
+/: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Sign in to I-Creator',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                              ),
+                              onPressed: signInWithGoogle,
+                              icon: const Icon(Icons.g_mobiledata, size: 28),
+                              label: const Text(
+                                'Sign in with Google',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+      ),
+    );
+  }
+}
+
 // ============================================================
 // PROFILE SCREEN (Google Sign-In)
 // ============================================================
@@ -1218,4 +1253,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-
