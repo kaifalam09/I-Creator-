@@ -995,91 +995,7 @@ class SubscriptionsScreen extends StatelessWidget {
   }
 }
 
-                  ),
-                ],
-              )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Sign in to I-Creator',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: channelController,
-                    decoration: const InputDecoration(
-                      labelText: 'Channel name',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                      ),
-                      onPressed: signIn,
-                      child: const Text('Sign in'),
-                    ),
-                  ),
-                ],
-              ),
-      ),
-    );
-  }
-}
-/: MainAxisAlignment.center,
-                        children: [
-                          const Text(
-                            'Sign in to I-Creator',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 50,
-                            child: ElevatedButton.icon(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: Colors.black,
-                              ),
-                              onPressed: signInWithGoogle,
-                              icon: const Icon(Icons.g_mobiledata, size: 28),
-                              label: const Text(
-                                'Sign in with Google',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-              ),
-      ),
-    );
-  }
-}
-
-// ============================================================
+     // ============================================================
 // PROFILE SCREEN (Google Sign-In)
 // ============================================================
 
@@ -1252,4 +1168,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-}
+}     
