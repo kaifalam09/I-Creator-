@@ -1040,6 +1040,10 @@ class SubscriptionsScreen extends StatelessWidget {
               ),
       ),
     );
+  }
+}
+// ============================================================
+// PROFILE SCREEN (Google Sign-In)
 // ============================================================
 // PROFILE SCREEN (Google Sign-In)
 // ============================================================
@@ -1214,4 +1218,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-}
+
