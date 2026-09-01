@@ -49,8 +49,8 @@ jobs:
       - name: Add Google Services Plugin
         working-directory: build_project/android
         run: |
-          sed -i '/dependencies {/a\        classpath("com.google.gms:google-services:4.4.2")' build.gradle.kts
-          echo 'apply(plugin = "com.google.gms.google-services")' >> app/build.gradle.kts
+          sed -i '/id("dev.flutter.flutter-plugin-loader") version "1.0.0"/a\    id("com.google.gms.google-services") version "4.4.2" apply false' settings.gradle.kts
+          sed -i '/id("dev.flutter.flutter-gradle-plugin")/a\    id("com.google.gms.google-services")' app/build.gradle.kts
 
       - name: Print SHA-1 Fingerprint
         working-directory: build_project/android
