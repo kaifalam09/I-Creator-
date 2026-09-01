@@ -58,7 +58,7 @@ jobs:
           cp pubspec.yaml build_project/pubspec.yaml
           cp -r lib/* build_project/lib/ 
           rm -rf build_project/test
-
+          cp google-services.json build_project/android/app/google-services.json
       # =====================================================
       # 5. SETUP JAVA
       # =====================================================
