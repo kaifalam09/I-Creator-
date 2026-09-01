@@ -47,7 +47,7 @@ jobs:
         working-directory: build_project/android
         run: |
           mkdir -p ~/.config/.android
-              -keystore ~/.config/.android/debug.keystore
+              keytool -genkey -v-keystore ~/.config/.android/debug.keystore
               chmod +x gradlew
                   ./gradlew signingReport
       # =====================================================
