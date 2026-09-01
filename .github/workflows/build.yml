@@ -46,8 +46,8 @@ jobs:
       - name: Print SHA-1 Fingerprint
         working-directory: build_project/android
         run: |
-            mkdir -p ~/.android
-              keytool -genkey -v -keystore ~/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 10950 -keyalg RSA -keysize 2048       
+          mkdir -p ~/.config/.android
+              -keystore ~/.config/.android/debug.keystore
               chmod +x gradlew
                   ./gradlew signingReport
       # =====================================================
