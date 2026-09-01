@@ -995,8 +995,53 @@ class SubscriptionsScreen extends StatelessWidget {
   }
 }
 
-// ============================================================
-// PROFILE SCREEN
+                  ),
+                ],
+              )
+            : Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  const Text(
+                    'Sign in to I-Creator',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: channelController,
+                    decoration: const InputDecoration(
+                      labelText: 'Channel name',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: const InputDecoration(
+                      labelText: 'Email',
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 48,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                      ),
+                      onPressed: signIn,
+                      child: const Text('Sign in'),
+                    ),
+                  ),
+                ],
+              ),
+      ),
+    );
+  }// ============================================================
+// PROFILE SCREEN (Google Sign-In)
 // ============================================================
 
 class ProfileScreen extends StatefulWidget {
@@ -1009,34 +1054,69 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController channelController = TextEditingController();
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+  bool isLoading = false;
 
-  void signIn() {
-    if (emailController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please enter an email.')),
-      );
-      return;
-    }
-
+  Future<void> signInWithGoogle() async {
     setState(() {
-      UserSession.isLoggedIn = true;
-      UserSession.email = emailController.text.trim();
-      UserSession.channelName = channelController.text.trim().isNotEmpty
-          ? channelController.text.trim()
-          : 'My Channel';
+      isLoading = true;
     });
 
-    widget.onStateChanged();
+    try {
+      final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
+
+      if (googleUser == null) {
+        setState(() {
+          isLoading = false;
+        });
+        return;
+      }
+
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
+
+      final credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      final userCredential =
+          await FirebaseAuth.instance.signInWithCredential(credential);
+
+      final user = userCredential.user;
+
+      setState(() {
+        UserSession.isLoggedIn = true;
+        UserSession.email = user?.email ?? '';
+        UserSession.channelName =
+            user?.displayName ?? 'My Channel';
+        isLoading = false;
+      });
+
+      widget.onStateChanged();
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Sign in failed: $e')),
+        );
+      }
+    }
   }
 
-  void signOut() {
+  Future<void> signOut() async {
+    await googleSignIn.signOut();
+    await FirebaseAuth.instance.signOut();
+
     setState(() {
       UserSession.isLoggedIn = false;
       UserSession.email = '';
       UserSession.channelName = 'Guest User';
     });
+
     widget.onStateChanged();
   }
 
@@ -1092,47 +1172,46 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ],
               )
-            : Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    'Sign in to I-Creator',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 20),
-                  TextField(
-                    controller: channelController,
-                    decoration: const InputDecoration(
-                      labelText: 'Channel name',
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  TextField(
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
+            : Center(
+                child: isLoading
+                    ? const CircularProgressIndicator(
+                        color: Colors.redAccent,
+                      )
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Text(
+                            'Sign in to I-Creator',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 50,
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.white,
+                                foregroundColor: Colors.black,
+                              ),
+                              onPressed: signInWithGoogle,
+                              icon: const Icon(Icons.g_mobiledata, size: 28),
+                              label: const Text(
+                                'Sign in with Google',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                      onPressed: signIn,
-                      child: const Text('Sign in'),
-                    ),
-                  ),
-                ],
               ),
       ),
     );
   }
+}
 }
