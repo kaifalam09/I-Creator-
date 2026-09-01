@@ -43,22 +43,33 @@ jobs:
             --platforms android \
             build_project
 
+      # =====================================================
+      # 3b. ADD GOOGLE SERVICES PLUGIN
+      # =====================================================
+      - name: Add Google Services Plugin
+        working-directory: build_project/android
+        run: |
+          sed -i '/dependencies {/a\        classpath("com.google.gms:google-services:4.4.2")' build.gradle.kts
+          echo 'apply(plugin = "com.google.gms.google-services")' >> app/build.gradle.kts
+
       - name: Print SHA-1 Fingerprint
         working-directory: build_project/android
         run: |
           mkdir -p ~/.config/.android
-              yes android | keytool -genkey -v -keystore ~/.config/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 10950 -keyalg RSA -keysize 2048
-              chmod +x gradlew
-                  ./gradlew signingReport
+          yes android | keytool -genkey -v -keystore ~/.config/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 10950 -keyalg RSA -keysize 2048
+          chmod +x gradlew
+          ./gradlew signingReport
+
       # =====================================================
       # 4. COPY APP FILES
       # =====================================================
       - name: Copy App Files
         run: |
           cp pubspec.yaml build_project/pubspec.yaml
-          cp -r lib/* build_project/lib/ 
+          cp -r lib/* build_project/lib/
           rm -rf build_project/test
           cp google-services.json build_project/android/app/google-services.json
+
       # =====================================================
       # 5. SETUP JAVA
       # =====================================================
