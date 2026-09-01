@@ -38,8 +38,8 @@ jobs:
       - name: Create Flutter Project
         run: |
           flutter create \
-            --org com.bharatstream.app \
-            --project-name i_creator \
+            --org com.kaifalam09 \
+            --project-name icreator \
             --platforms android \
             build_project
 
