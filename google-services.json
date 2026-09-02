@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "48916507104-16m7mqh66qf2av0kh2ovdv1uvb9f5kpi.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.kaifalam09.icreator",
+            "certificate_hash": "17f0096597b74e69369e4a5c5508bda31b7b1d3f"
+          }
+        },
+        {
           "client_id": "48916507104-1k96t1hcq80qndrovj3f7rhsn5r5r4o4.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -45,5 +53,3 @@
   ],
   "configuration_version": "1"
 }
-
-
