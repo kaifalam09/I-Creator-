@@ -7,6 +7,9 @@ on:
 
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     name: Build Android APK
@@ -52,11 +55,30 @@ jobs:
           sed -i '/id("dev.flutter.flutter-plugin-loader") version "1.0.0"/a\    id("com.google.gms.google-services") version "4.4.2" apply false' settings.gradle.kts
           sed -i '/id("dev.flutter.flutter-gradle-plugin")/a\    id("com.google.gms.google-services")' app/build.gradle.kts
 
+      # =====================================================
+      # 3c. RESTORE OR GENERATE PERSISTENT KEYSTORE
+      # =====================================================
+      - name: Restore or Generate Debug Keystore
+        run: |
+          mkdir -p ~/.config/.android
+          if [ -f keystore/debug.keystore ]; then
+            echo "Using existing keystore from repo"
+            cp keystore/debug.keystore ~/.config/.android/debug.keystore
+          else
+            echo "Generating new keystore for the first time"
+            yes android | keytool -genkey -v -keystore ~/.config/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 10950 -keyalg RSA -keysize 2048
+            mkdir -p keystore
+            cp ~/.config/.android/debug.keystore keystore/debug.keystore
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git add keystore/debug.keystore
+            git commit -m "Add persistent debug keystore [skip ci]"
+            git push
+          fi
+
       - name: Print SHA-1 Fingerprint
         working-directory: build_project/android
         run: |
-          mkdir -p ~/.config/.android
-          yes android | keytool -genkey -v -keystore ~/.config/.android/debug.keystore -storepass android -alias androiddebugkey -keypass android -dname "CN=Android Debug,O=Android,C=US" -validity 10950 -keyalg RSA -keysize 2048
           chmod +x gradlew
           ./gradlew signingReport
 
