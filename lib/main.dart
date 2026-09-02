@@ -504,7 +504,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     final List<Widget> screens = [
       const HomeScreen(),
-      const ReelsScreen(),
+      ReelsScreen(key: UniqueKey()),
       const SizedBox.shrink(),
       const SubscriptionsScreen(),
       ProfileScreen(
