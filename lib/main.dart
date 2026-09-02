@@ -30,6 +30,11 @@ class UserSession {
 // VIDEO MODEL
 // ============================================================
 
+
+
+// ============================================================
+// VIDEO DATABASE
+// ============================================================
 class VideoModel {
   final String title;
   final String channel;
@@ -46,12 +51,27 @@ class VideoModel {
     this.networkUrl,
     this.filePath,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'channel': channel,
+      'type': type,
+      'views': views,
+      'networkUrl': networkUrl,
+    };
+  }
+
+  factory VideoModel.fromMap(Map<String, dynamic> map) {
+    return VideoModel(
+      title: map['title'] ?? '',
+      channel: map['channel'] ?? '',
+      type: map['type'] ?? 'long',
+      views: map['views'] ?? '',
+      networkUrl: map['networkUrl'],
+    );
+  }
 }
-
-// ============================================================
-// VIDEO DATABASE
-// ============================================================
-
 final List<VideoModel> globalVideos = [
   const VideoModel(
     title: 'Welcome to I-Creator: Ultimate Platform Tour',
