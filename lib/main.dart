@@ -280,9 +280,35 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   // ==========================================================
-  // VIDEO DETAILS
+  // UPLOAD TO CLOUDINARY
   // ==========================================================
 
+  Future<String?> uploadToCloudinary(String filePath) async {
+    const cloudName = 's88mxyon';
+    const uploadPreset = 'ml_default';
+
+    final url = Uri.parse(
+      'https://api.cloudinary.com/v1_1/$cloudName/video/upload',
+    );
+
+    final request = http.MultipartRequest('POST', url)
+      ..fields['upload_preset'] = uploadPreset
+      ..files.add(await http.MultipartFile.fromPath('file', filePath));
+
+    final response = await request.send();
+
+    if (response.statusCode == 200) {
+      final resBody = await response.stream.bytesToString();
+      final data = jsonDecode(resBody);
+      return data['secure_url'];
+    } else {
+      return null;
+    }
+  }
+
+  // ==========================================================
+  // VIDEO DETAILS
+  // ==========================================================
   void showVideoDetails(
     String filePath,
     String type,
