@@ -150,6 +150,16 @@ class _MainScreenState extends State<MainScreen> {
 
   final ImagePicker picker = ImagePicker();
 
+  @override
+  void initState() {
+    super.initState();
+    final currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser != null) {
+      UserSession.isLoggedIn = true;
+      UserSession.email = currentUser.email ?? '';
+      UserSession.channelName = currentUser.displayName ?? 'My Channel';
+    }
+  }
   // ==========================================================
   // CREATE MENU
   // ==========================================================
