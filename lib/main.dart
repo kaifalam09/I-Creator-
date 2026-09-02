@@ -567,8 +567,46 @@ class _MainScreenState extends State<MainScreen> {
 // HOME
 // ============================================================
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    loadVideosFromFirestore();
+  }
+
+  Future<void> loadVideosFromFirestore() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('videos')
+          .get();
+
+      final loadedVideos = snapshot.docs
+          .map((doc) => VideoModel.fromMap(doc.data()))
+          .toList();
+
+      if (mounted) {
+        setState(() {
+          for (final video in loadedVideos.reversed) {
+            final alreadyExists = globalVideos.any(
+              (v) => v.title == video.title && v.networkUrl == video.networkUrl,
+            );
+            if (!alreadyExists) {
+              globalVideos.insert(0, video);
+            }
+          }
+        });
+      }
+    } catch (_) {
+      // silently ignore for now
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -577,7 +615,6 @@ class HomeScreen extends StatelessWidget {
           (video) => video.type == 'long',
         )
         .toList();
-
     return Scaffold(
       appBar: AppBar(
         title: const Row(
