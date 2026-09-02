@@ -397,7 +397,7 @@ class _MainScreenState extends State<MainScreen> {
                     foregroundColor:
                         Colors.white,
                   ),
-                  onPressed: () {
+                  onPressed: () async {
                     final title =
                         titleController.text.trim();
 
@@ -413,21 +413,50 @@ class _MainScreenState extends State<MainScreen> {
                       return;
                     }
 
-                    setState(() {
-                      globalVideos.insert(
-                        0,
-                        VideoModel(
-                          title: title,
-                          channel:
-                              UserSession.channelName,
-                          type: type,
-                          views: 'Just now',
-                          filePath: filePath,
+                    Navigator.pop(ctx);
+
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Uploading video, please wait...',
+                        ),
+                      ),
+                    );
+
+                    final uploadedUrl =
+                        await uploadToCloudinary(filePath);
+
+                    if (uploadedUrl == null) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context)
+                          .showSnackBar(
+                        const SnackBar(
+                          content: Text(
+                            'Upload failed. Please try again.',
+                          ),
                         ),
                       );
+                      return;
+                    }
+
+                    final newVideo = VideoModel(
+                      title: title,
+                      channel: UserSession.channelName,
+                      type: type,
+                      views: 'Just now',
+                      networkUrl: uploadedUrl,
+                    );
+
+                    await FirebaseFirestore.instance
+                        .collection('videos')
+                        .add(newVideo.toMap());
+
+                    setState(() {
+                      globalVideos.insert(0, newVideo);
                     });
 
-                    Navigator.pop(ctx);
+                    if (!mounted) return;
 
                     ScaffoldMessenger.of(context)
                         .showSnackBar(
