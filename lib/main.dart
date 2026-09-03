@@ -1415,9 +1415,99 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               ),
                             ),
                           ),
-                        ],
-                      ),
-              ),
+                        ),
+            ],
+          ),
+          ),
+        );
+      },
+    );
+  }
+// ============================================================
+// FULL VIDEO PLAYER SCREEN
+// ============================================================
+
+class VideoPlayerScreen extends StatefulWidget {
+  final VideoModel video;
+
+  const VideoPlayerScreen({super.key, required this.video});
+
+  @override
+  State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
+}
+
+class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
+  VideoPlayerController? controller;
+  String? error;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeVideo();
+  }
+
+  Future<void> initializeVideo() async {
+    try {
+      if (widget.video.filePath != null) {
+        controller = VideoPlayerController.file(File(widget.video.filePath!));
+      } else if (widget.video.networkUrl != null) {
+        controller = VideoPlayerController.networkUrl(
+          Uri.parse(widget.video.networkUrl!),
+        );
+      } else {
+        setState(() {
+          error = 'Video source unavailable';
+        });
+        return;
+      }
+
+      await controller!.initialize();
+      controller!.play();
+
+      if (mounted) {
+        setState(() {});
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          error = 'Unable to load video';
+        });
+      }
+    }
+  }
+
+  @override
+  void dispose() {
+    controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        title: Text(widget.video.title),
+      ),
+      body: Center(
+        child: error != null
+            ? Text(error!, style: const TextStyle(color: Colors.grey))
+            : controller != null && controller!.value.isInitialized
+                ? AspectRatio(
+                    aspectRatio: controller!.value.aspectRatio,
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          controller!.value.isPlaying
+                              ? controller!.pause()
+                              : controller!.play();
+                        });
+                      },
+                      child: VideoPlayer(controller!),
+                    ),
+                  )
+                : const CircularProgressIndicator(color: Colors.redAccent),
       ),
     );
   }
