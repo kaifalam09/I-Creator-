@@ -1123,7 +1123,6 @@ class SubscriptionsScreen extends StatelessWidget {
      // ============================================================
 // PROFILE SCREEN (Google Sign-In)
 // ============================================================
-
 class ProfileScreen extends StatefulWidget {
   final VoidCallback onStateChanged;
 
@@ -1200,6 +1199,70 @@ class _ProfileScreenState extends State<ProfileScreen> {
     widget.onStateChanged();
   }
 
+  Widget _buildMyVideosGrid() {
+    final myVideos = globalVideos
+        .where((v) => v.channel == UserSession.channelName)
+        .toList();
+
+    if (myVideos.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 20),
+        child: Text(
+          'No videos uploaded yet',
+          style: TextStyle(color: Colors.grey),
+        ),
+      );
+    }
+
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: myVideos.length,
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 2,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+        childAspectRatio: 16 / 12,
+      ),
+      itemBuilder: (context, index) {
+        final video = myVideos[index];
+        return Container(
+          decoration: BoxDecoration(
+            color: const Color(0xFF1E1E1E),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.black,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: const Icon(
+                    Icons.play_circle_outline,
+                    color: Colors.grey,
+                    size: 32,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                video.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1212,45 +1275,101 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: UserSession.isLoggedIn
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.redAccent,
-                    child: Text(
-                      UserSession.channelName.isNotEmpty
-                          ? UserSession.channelName[0].toUpperCase()
-                          : 'U',
-                      style: const TextStyle(fontSize: 30, color: Colors.white),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    UserSession.channelName,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    UserSession.email,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
+            ? SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      height: 100,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.redAccent.shade700,
+                            Colors.redAccent.shade200,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      onPressed: signOut,
-                      child: const Text('Sign out'),
                     ),
-                  ),
-                ],
+                    Transform.translate(
+                      offset: const Offset(0, -35),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          CircleAvatar(
+                            radius: 40,
+                            backgroundColor: Colors.white,
+                            child: CircleAvatar(
+                              radius: 37,
+                              backgroundColor: Colors.redAccent,
+                              child: Text(
+                                UserSession.channelName.isNotEmpty
+                                    ? UserSession.channelName[0].toUpperCase()
+                                    : 'U',
+                                style: const TextStyle(
+                                  fontSize: 30,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Transform.translate(
+                      offset: const Offset(0, -25),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            UserSession.channelName,
+                            style: const TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            UserSession.email,
+                            style: const TextStyle(color: Colors.grey),
+                          ),
+                          const SizedBox(height: 4),
+                          const Text(
+                            '0 subscribers',
+                            style: TextStyle(color: Colors.grey, fontSize: 13),
+                          ),
+                          const SizedBox(height: 16),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 44,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                              ),
+                              onPressed: signOut,
+                              child: const Text('Sign out'),
+                            ),
+                          ),
+                          const SizedBox(height: 20),
+                          const Divider(color: Colors.grey),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'My Videos',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildMyVideosGrid(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               )
             : Center(
                 child: isLoading
@@ -1293,4 +1412,4 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
   }
-}     
+}
