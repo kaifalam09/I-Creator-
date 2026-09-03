@@ -692,7 +692,6 @@ class _HomeScreenState extends State<HomeScreen> {
 // ============================================================
 // VIDEO CARD
 // ============================================================
-
 class VideoCard extends StatefulWidget {
   final VideoModel video;
 
@@ -848,21 +847,33 @@ class _VideoCardState
             crossAxisAlignment:
                 CrossAxisAlignment.start,
             children: [
-              CircleAvatar(
-                backgroundColor:
-                    Colors.redAccent,
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ChannelScreen(
+                        channelName: widget.video.channel,
+                      ),
+                    ),
+                  );
+                },
+                child: CircleAvatar(
+                  backgroundColor:
+                      Colors.redAccent,
 
-                child: Text(
-                  widget.video.channel
-                          .isNotEmpty
-                      ? widget.video.channel[0]
-                          .toUpperCase()
-                      : 'U',
+                  child: Text(
+                    widget.video.channel
+                            .isNotEmpty
+                        ? widget.video.channel[0]
+                            .toUpperCase()
+                        : 'U',
 
-                  style:
-                      const TextStyle(
-                    fontWeight:
-                        FontWeight.bold,
+                    style:
+                        const TextStyle(
+                      fontWeight:
+                          FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
@@ -918,6 +929,10 @@ class _VideoCardState
     );
   }
 }
+
+        
+                
+    
 
 // ============================================================
 // SHORTS
