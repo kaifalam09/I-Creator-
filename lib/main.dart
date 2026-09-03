@@ -1179,11 +1179,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       final user = userCredential.user;
 
+      String finalChannelName = user?.displayName ?? 'My Channel';
+
+      if (user != null) {
+        final doc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        if (doc.exists && doc.data()?['channelName'] != null) {
+          finalChannelName = doc.data()!['channelName'];
+        }
+      }
+
       setState(() {
         UserSession.isLoggedIn = true;
         UserSession.email = user?.email ?? '';
-        UserSession.channelName =
-            user?.displayName ?? 'My Channel';
+        UserSession.channelName = finalChannelName;
         isLoading = false;
       });
 
