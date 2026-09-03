@@ -1514,3 +1514,129 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     );
   }
 }
+// ============================================================
+// CHANNEL SCREEN (View any creator's channel)
+// ============================================================
+
+class ChannelScreen extends StatelessWidget {
+  final String channelName;
+
+  const ChannelScreen({super.key, required this.channelName});
+
+  @override
+  Widget build(BuildContext context) {
+    final channelVideos = globalVideos
+        .where((v) => v.channel == channelName)
+        .toList();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(channelName),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              height: 100,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    Colors.redAccent.shade700,
+                    Colors.redAccent.shade200,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 35,
+                    backgroundColor: Colors.redAccent,
+                    child: Text(
+                      channelName.isNotEmpty
+                          ? channelName[0].toUpperCase()
+                          : 'U',
+                      style: const TextStyle(
+                        fontSize: 26,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 14),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          channelName,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        const Text(
+                          '0 subscribers',
+                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                        ),
+                      ],
+                    ),
+                  ),
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.redAccent,
+                    ),
+                    onPressed: () {},
+                    child: const Text('Subscribe'),
+                  ),
+                ],
+              ),
+            ),
+            const Divider(color: Colors.grey),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Text(
+                'Videos',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+            ),
+            if (channelVideos.isEmpty)
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Text(
+                  'No videos yet',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              )
+            else
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: channelVideos.length,
+                itemBuilder: (context, index) {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              VideoPlayerScreen(video: channelVideos[index]),
+                        ),
+                      );
+                    },
+                    child: VideoCard(video: channelVideos[index]),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
