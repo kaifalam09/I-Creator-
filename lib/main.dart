@@ -1225,7 +1225,52 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     widget.onStateChanged();
   }
+Future<void> editChannelName() async {
+    final controller = TextEditingController(text: UserSession.channelName);
 
+    final newName = await showDialog<String>(
+      context: context,
+      builder: (ctx) {
+        return AlertDialog(
+          backgroundColor: const Color(0xFF1E1E1E),
+          title: const Text('Edit channel name'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              hintText: 'Enter channel name',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(ctx, controller.text.trim());
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (newName == null || newName.isEmpty) return;
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+      'channelName': newName,
+    });
+
+    setState(() {
+      UserSession.channelName = newName;
+    });
+
+    widget.onStateChanged();
+}
   Widget _buildMyVideosGrid() {
     final myVideos = globalVideos
         .where((v) => v.channel == UserSession.channelName)
