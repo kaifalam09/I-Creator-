@@ -126,7 +126,7 @@ final List<VideoModel> globalVideos = [
     title: 'Welcome to I-Creator: Ultimate Platform Tour',
     channel: 'I-Creator Official',
     type: 'long',
-    views: '1.4M views • 1 day ago',
+    viewCount: 1400000,
     networkUrl:
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
   ),
@@ -134,7 +134,7 @@ final List<VideoModel> globalVideos = [
     title: 'Top Speed Drift Highlights #Shorts',
     channel: 'SpeedRunner',
     type: 'reel',
-    views: '850K views',
+    viewCount: 850000,
     networkUrl:
         'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4',
   ),
