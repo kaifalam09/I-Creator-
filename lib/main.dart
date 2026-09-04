@@ -1638,7 +1638,14 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   void initState() {
     super.initState();
     initializeVideo();
+
+    if (widget.video.id != null) {
+      incrementViewCount(widget.video.id!);
+    }
   }
+
+  Future<void> initializeVideo() async {
+    ...
 
   Future<void> initializeVideo() async {
     try {
