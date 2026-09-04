@@ -576,7 +576,6 @@ class _MainScreenState extends State<MainScreen> {
 // ============================================================
 // HOME
 // ============================================================
-
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -680,8 +679,19 @@ class _HomeScreenState extends State<HomeScreen> {
               itemCount: videos.length,
               itemBuilder:
                   (context, index) {
-                return VideoCard(
-                  video: videos[index],
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            VideoPlayerScreen(video: videos[index]),
+                      ),
+                    );
+                  },
+                  child: VideoCard(
+                    video: videos[index],
+                  ),
                 );
               },
             ),
