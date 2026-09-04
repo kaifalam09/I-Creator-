@@ -676,28 +676,128 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             )
           : ListView.builder(
-              itemCount: videos.length,
-              itemBuilder:
-                  (context, index) {
+              itemCount: videos.length + 1,
+              itemBuilder: (context, index) {
+                if (index == 2) {
+                  return _buildShortsRow(context);
+                }
+
+                final videoIndex = index > 2 ? index - 1 : index;
+
+                if (videoIndex >= videos.length) {
+                  return const SizedBox.shrink();
+                }
+
                 return GestureDetector(
                   onTap: () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) =>
-                            VideoPlayerScreen(video: videos[index]),
+                            VideoPlayerScreen(video: videos[videoIndex]),
                       ),
                     );
                   },
                   child: VideoCard(
-                    video: videos[index],
+                    video: videos[videoIndex],
                   ),
                 );
               },
             ),
     );
   }
+
+  Widget _buildShortsRow(BuildContext context) {
+    final shorts =
+        globalVideos.where((v) => v.type == 'reel').toList();
+
+    if (shorts.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 10),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                Icon(Icons.play_circle_fill_rounded,
+                    color: Colors.redAccent, size: 22),
+                SizedBox(width: 6),
+                Text(
+                  'Shorts',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            height: 220,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              itemCount: shorts.length > 5 ? 5 : shorts.length,
+              itemBuilder: (context, index) {
+                return GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const ReelsScreen(),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    width: 120,
+                    margin: const EdgeInsets.only(right: 10),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1E1E1E),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        const Center(
+                          child: Icon(
+                            Icons.play_circle_outline,
+                            color: Colors.grey,
+                            size: 32,
+                          ),
+                        ),
+                        Positioned(
+                          left: 6,
+                          right: 6,
+                          bottom: 6,
+                          child: Text(
+                            shorts[index].title,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
+      
 
 // ============================================================
 // VIDEO CARD
