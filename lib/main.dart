@@ -30,7 +30,56 @@ class UserSession {
 // VIDEO MODEL
 // ============================================================
 
+class VideoModel {
+  final String? id;
+  final String title;
+  final String channel;
+  final String type;
+  final int viewCount;
+  final String? networkUrl;
+  final String? filePath;
 
+  const VideoModel({
+    this.id,
+    required this.title,
+    required this.channel,
+    required this.type,
+    this.viewCount = 0,
+    this.networkUrl,
+    this.filePath,
+  });
+
+  String get views {
+    if (viewCount >= 1000000) {
+      return '${(viewCount / 1000000).toStringAsFixed(1)}M views';
+    } else if (viewCount >= 1000) {
+      return '${(viewCount / 1000).toStringAsFixed(1)}K views';
+    } else {
+      return '$viewCount views';
+    }
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'title': title,
+      'channel': channel,
+      'type': type,
+      'viewCount': viewCount,
+      'networkUrl': networkUrl,
+    };
+  }
+
+  factory VideoModel.fromMap(Map<String, dynamic> map, String docId) {
+    return VideoModel(
+      id: docId,
+      title: map['title'] ?? '',
+      channel: map['channel'] ?? '',
+      type: map['type'] ?? 'long',
+      viewCount: map['viewCount'] ?? 0,
+      networkUrl: map['networkUrl'],
+    );
+  }
+}
 
 // ============================================================
 // VIDEO DATABASE
