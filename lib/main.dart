@@ -1639,6 +1639,7 @@ class VideoPlayerScreen extends StatefulWidget {
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   VideoPlayerController? controller;
   String? error;
+  bool _showFullDescription = false; // NEW
 
   @override
   void initState() {
@@ -1649,7 +1650,6 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       incrementViewCount(widget.video.id!);
     }
   }
-
 
   Future<void> initializeVideo() async {
     try {
@@ -1726,58 +1726,108 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
               ),
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.video.title,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  widget.video.views,
-                  style: const TextStyle(color: Colors.grey, fontSize: 13),
-                ),
-                const SizedBox(height: 16),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => ChannelScreen(
-                          channelName: widget.video.channel,
+          Expanded(
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.video.title,
+                      style: const TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      widget.video.views,
+                      style: const TextStyle(color: Colors.grey, fontSize: 13),
+                    ),
+                    const SizedBox(height: 12),
+
+                    // ---------- NEW: DESCRIPTION BLOCK ----------
+                    if (widget.video.description.isNotEmpty)
+                      GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _showFullDescription = !_showFullDescription;
+                          });
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.06),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.video.description,
+                                maxLines: _showFullDescription ? null : 2,
+                                overflow: _showFullDescription
+                                    ? TextOverflow.visible
+                                    : TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 13.5,
+                                  color: Colors.white70,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                _showFullDescription ? 'Show less' : 'Show more',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    );
-                  },
-                  child: Row(
-                    children: [
-                      CircleAvatar(
-                        backgroundColor: Colors.redAccent,
-                        child: Text(
-                          widget.video.channel.isNotEmpty
-                              ? widget.video.channel[0].toUpperCase()
-                              : 'U',
-                          style: const TextStyle(color: Colors.white),
-                        ),
+                    const SizedBox(height: 16),
+                    // ---------- END DESCRIPTION BLOCK ----------
+
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChannelScreen(
+                              channelName: widget.video.channel,
+                            ),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            backgroundColor: Colors.redAccent,
+                            child: Text(
+                              widget.video.channel.isNotEmpty
+                                  ? widget.video.channel[0].toUpperCase()
+                                  : 'U',
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            widget.video.channel,
+                            style: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 12),
-                      Text(
-                        widget.video.channel,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -1785,7 +1835,8 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
     );
   }
 }
-        
+      
+                   
 // ============================================================
 // CHANNEL SCREEN (View any creator's channel)
 // ============================================================
