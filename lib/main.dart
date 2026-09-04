@@ -370,7 +370,8 @@ class _MainScreenState extends State<MainScreen> {
   ) {
     final TextEditingController titleController =
         TextEditingController();
-
+final TextEditingController descriptionController =
+    TextEditingController();
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
