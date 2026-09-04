@@ -80,7 +80,12 @@ class VideoModel {
     );
   }
 }
-
+Future<void> incrementViewCount(String videoId) async {
+  await FirebaseFirestore.instance
+      .collection('videos')
+      .doc(videoId)
+      .update({'viewCount': FieldValue.increment(1)});
+}
 // ============================================================
 // VIDEO DATABASE
 // ============================================================
