@@ -38,6 +38,7 @@ class VideoModel {
   final int viewCount;
   final String? networkUrl;
   final String? filePath;
+  final String description;
 
   const VideoModel({
     this.id,
@@ -47,6 +48,7 @@ class VideoModel {
     this.viewCount = 0,
     this.networkUrl,
     this.filePath,
+    this.description = '',
   });
 
   String get views {
@@ -66,6 +68,7 @@ class VideoModel {
       'type': type,
       'viewCount': viewCount,
       'networkUrl': networkUrl,
+      'description': description,
     };
   }
 
@@ -77,15 +80,18 @@ class VideoModel {
       type: map['type'] ?? 'long',
       viewCount: map['viewCount'] ?? 0,
       networkUrl: map['networkUrl'],
+      description: map['description'] ?? '',
     );
   }
 }
+
 Future<void> incrementViewCount(String videoId) async {
   await FirebaseFirestore.instance
       .collection('videos')
       .doc(videoId)
       .update({'viewCount': FieldValue.increment(1)});
 }
+
 // ============================================================
 // VIDEO DATABASE
 // ============================================================
