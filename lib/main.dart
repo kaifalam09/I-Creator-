@@ -811,31 +811,9 @@ class _VideoCardState
       children: [
         AspectRatio(
           aspectRatio: 16 / 9,
-
-          child: GestureDetector(
-            onTap: () {
-              if (controller == null ||
-                  !controller!
-                      .value
-                      .isInitialized) {
-                return;
-              }
-
-              if (controller!
-                  .value
-                  .isPlaying) {
-                controller!.pause();
-              } else {
-                controller!.play();
-              }
-
-              setState(() {});
-            },
-
-            child: Container(
-              color: Colors.black,
-              child: player,
-            ),
+          child: Container(
+            color: Colors.black,
+            child: player,
           ),
         ),
 
@@ -929,8 +907,6 @@ class _VideoCardState
     );
   }
 }
-
-        
                 
     
 
