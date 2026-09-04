@@ -609,9 +609,9 @@ class _HomeScreenState extends State<HomeScreen> {
           .collection('videos')
           .get();
 
-    final loadedVideos = snapshot.docs
+      final loadedVideos = snapshot.docs
           .map((doc) => VideoModel.fromMap(
-                doc.data() as Map<String, dynamic>,
+                doc.data(),
                 doc.id,
               ))
           .toList();
