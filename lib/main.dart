@@ -418,7 +418,17 @@ final TextEditingController descriptionController =
                   hintText: 'Enter a title',
                 ),
               ),
+const SizedBox(height: 15),
 
+TextField(
+  controller: descriptionController,
+  maxLines: 4,
+  textInputAction: TextInputAction.done,
+  decoration: const InputDecoration(
+    labelText: 'Description',
+    hintText: 'Tell viewers about your video',
+  ),
+),
               const SizedBox(height: 18),
 
               SizedBox(
