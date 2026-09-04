@@ -1645,7 +1645,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   }
 
   Future<void> initializeVideo() async {
-    ...
+    
 
   Future<void> initializeVideo() async {
     try {
