@@ -467,7 +467,7 @@ class _MainScreenState extends State<MainScreen> {
                       title: title,
                       channel: UserSession.channelName,
                       type: type,
-                      views: 'Just now',
+                    
                       networkUrl: uploadedUrl,
                     );
 
