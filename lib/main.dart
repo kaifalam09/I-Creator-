@@ -1603,20 +1603,99 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
 // CHANNEL SCREEN (View any creator's channel)
 // ============================================================
 
-class ChannelScreen extends StatelessWidget {
+class ChannelScreen extends StatefulWidget {
   final String channelName;
 
   const ChannelScreen({super.key, required this.channelName});
 
   @override
+  State<ChannelScreen> createState() => _ChannelScreenState();
+}
+
+class _ChannelScreenState extends State<ChannelScreen> {
+  bool isSubscribed = false;
+  int subscriberCount = 0;
+  bool isLoading = true;
+
+  String get subDocId {
+    final user = FirebaseAuth.instance.currentUser;
+    return '${user?.uid}_${widget.channelName}';
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    loadSubscriptionData();
+  }
+
+  Future<void> loadSubscriptionData() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    final countSnapshot = await FirebaseFirestore.instance
+        .collection('subscriptions')
+        .where('channelName', isEqualTo: widget.channelName)
+        .get();
+
+    bool subscribed = false;
+
+    if (user != null) {
+      final doc = await FirebaseFirestore.instance
+          .collection('subscriptions')
+          .doc(subDocId)
+          .get();
+      subscribed = doc.exists;
+    }
+
+    if (mounted) {
+      setState(() {
+        subscriberCount = countSnapshot.docs.length;
+        isSubscribed = subscribed;
+        isLoading = false;
+      });
+    }
+  }
+
+  Future<void> toggleSubscribe() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please sign in to subscribe.')),
+      );
+      return;
+    }
+
+    final ref = FirebaseFirestore.instance
+        .collection('subscriptions')
+        .doc(subDocId);
+
+    if (isSubscribed) {
+      await ref.delete();
+      setState(() {
+        isSubscribed = false;
+        subscriberCount -= 1;
+      });
+    } else {
+      await ref.set({
+        'userId': user.uid,
+        'channelName': widget.channelName,
+      });
+      setState(() {
+        isSubscribed = true;
+        subscriberCount += 1;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final channelVideos = globalVideos
-        .where((v) => v.channel == channelName)
+        .where((v) => v.channel == widget.channelName)
         .toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(channelName),
+        title: Text(widget.channelName),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -1644,8 +1723,8 @@ class ChannelScreen extends StatelessWidget {
                     radius: 35,
                     backgroundColor: Colors.redAccent,
                     child: Text(
-                      channelName.isNotEmpty
-                          ? channelName[0].toUpperCase()
+                      widget.channelName.isNotEmpty
+                          ? widget.channelName[0].toUpperCase()
                           : 'U',
                       style: const TextStyle(
                         fontSize: 26,
@@ -1659,26 +1738,31 @@ class ChannelScreen extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          channelName,
+                          widget.channelName,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 4),
-                        const Text(
-                          '0 subscribers',
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                        Text(
+                          isLoading
+                              ? 'Loading...'
+                              : '$subscriberCount subscribers',
+                          style: const TextStyle(
+                              color: Colors.grey, fontSize: 13),
                         ),
                       ],
                     ),
                   ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.redAccent,
+                      backgroundColor: isSubscribed
+                          ? const Color(0xFF333333)
+                          : Colors.redAccent,
                     ),
-                    onPressed: () {},
-                    child: const Text('Subscribe'),
+                    onPressed: isLoading ? null : toggleSubscribe,
+                    child: Text(isSubscribed ? 'Subscribed' : 'Subscribe'),
                   ),
                 ],
               ),
