@@ -1558,33 +1558,102 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF0F0F0F),
       appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(widget.video.title),
+        backgroundColor: const Color(0xFF0F0F0F),
       ),
-      body: Center(
-        child: error != null
-            ? Text(error!, style: const TextStyle(color: Colors.grey))
-            : controller != null && controller!.value.isInitialized
-                ? AspectRatio(
-                    aspectRatio: controller!.value.aspectRatio,
-                    child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          controller!.value.isPlaying
-                              ? controller!.pause()
-                              : controller!.play();
-                        });
-                      },
-                      child: VideoPlayer(controller!),
-                    ),
-                  )
-                : const CircularProgressIndicator(color: Colors.redAccent),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: Container(
+              color: Colors.black,
+              child: Center(
+                child: error != null
+                    ? Text(error!, style: const TextStyle(color: Colors.grey))
+                    : controller != null && controller!.value.isInitialized
+                        ? GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                controller!.value.isPlaying
+                                    ? controller!.pause()
+                                    : controller!.play();
+                              });
+                            },
+                            child: FittedBox(
+                              fit: BoxFit.contain,
+                              child: SizedBox(
+                                width: controller!.value.size.width,
+                                height: controller!.value.size.height,
+                                child: VideoPlayer(controller!),
+                              ),
+                            ),
+                          )
+                        : const CircularProgressIndicator(color: Colors.redAccent),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  widget.video.title,
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  widget.video.views,
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
+                ),
+                const SizedBox(height: 16),
+                GestureDetector(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChannelScreen(
+                          channelName: widget.video.channel,
+                        ),
+                      ),
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor: Colors.redAccent,
+                        child: Text(
+                          widget.video.channel.isNotEmpty
+                              ? widget.video.channel[0].toUpperCase()
+                              : 'U',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        widget.video.channel,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
 }
+        
 // ============================================================
 // CHANNEL SCREEN (View any creator's channel)
 // ============================================================
