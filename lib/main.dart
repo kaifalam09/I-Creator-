@@ -91,6 +91,11 @@ final String description;
       viewCount: map['viewCount'] ?? 0,
       networkUrl: map['networkUrl'],
       description: map['description'] ?? '',
+      description: map['description'] ?? '',
+      likeCount: map['likeCount'] ?? 0,
+      dislikeCount: map['dislikeCount'] ?? 0,
+    );
+  }
     );
   }
 }
