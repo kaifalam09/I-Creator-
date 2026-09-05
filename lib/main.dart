@@ -75,6 +75,10 @@ final String description;
       'viewCount': viewCount,
       'networkUrl': networkUrl,
       'description': description,
+      'description': description,
+        'likeCount': likeCount,       // ADD THIS
+        'dislikeCount': dislikeCount, // ADD THIS
+      };
     };
   }
 
