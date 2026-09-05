@@ -1918,7 +1918,15 @@ StreamBuilder<QuerySnapshot>(
         ),
       );
     }
-
+if (snapshot.hasError) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 12),
+    child: Text(
+      'Error: ${snapshot.error}',
+      style: const TextStyle(color: Colors.red, fontSize: 12),
+    ),
+  );
+}
     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 12),
