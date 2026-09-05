@@ -1869,15 +1869,18 @@ void dispose() {
                           ),
                           const SizedBox(width: 12),
                           Text(
-                            widget.video.channel,
-                            style: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(height: 20),
-const Divider(color: Colors.grey),
-const SizedBox(height: 12),
+                      widget.video.channel,
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 20),
+              const Divider(color: Colors.grey),
+              const SizedBox(height: 12),
 
 // ---------- COMMENT SECTION ----------
 Row(
