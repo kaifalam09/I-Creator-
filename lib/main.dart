@@ -1650,7 +1650,7 @@ class VideoPlayerScreen extends StatefulWidget {
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   VideoPlayerController? controller;
   String? error;
-  bool _showFullDescription = false; // NEW
+  
 bool _showFullDescription = false; // NEW
 final TextEditingController _commentController = TextEditingController(); // NEW
   @override
