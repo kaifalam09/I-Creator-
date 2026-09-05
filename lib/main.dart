@@ -1866,6 +1866,133 @@ void dispose() {
                               fontWeight: FontWeight.w600,
                             ),
                           ),
+                          const SizedBox(height: 20),
+const Divider(color: Colors.grey),
+const SizedBox(height: 12),
+
+// ---------- COMMENT SECTION ----------
+Row(
+  children: [
+    CircleAvatar(
+      radius: 16,
+      backgroundColor: Colors.redAccent,
+      child: Text(
+        UserSession.channelName.isNotEmpty
+            ? UserSession.channelName[0].toUpperCase()
+            : 'U',
+        style: const TextStyle(color: Colors.white, fontSize: 13),
+      ),
+    ),
+    const SizedBox(width: 10),
+    Expanded(
+      child: TextField(
+        controller: _commentController,
+        style: const TextStyle(color: Colors.white, fontSize: 14),
+        decoration: const InputDecoration(
+          hintText: 'Add a comment...',
+          hintStyle: TextStyle(color: Colors.grey),
+          border: UnderlineInputBorder(),
+        ),
+      ),
+    ),
+    IconButton(
+      icon: const Icon(Icons.send, color: Colors.redAccent, size: 20),
+      onPressed: _postComment,
+    ),
+  ],
+),
+const SizedBox(height: 16),
+
+StreamBuilder<QuerySnapshot>(
+  stream: FirebaseFirestore.instance
+      .collection('comments')
+      .where('videoId', isEqualTo: widget.video.id)
+      .orderBy('timestamp', descending: true)
+      .snapshots(),
+  builder: (context, snapshot) {
+    if (snapshot.connectionState == ConnectionState.waiting) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Center(
+          child: CircularProgressIndicator(color: Colors.redAccent),
+        ),
+      );
+    }
+
+    if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 12),
+        child: Text(
+          'No comments yet. Be the first!',
+          style: TextStyle(color: Colors.grey, fontSize: 13),
+        ),
+      );
+    }
+
+    final comments = snapshot.data!.docs;
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: comments.length,
+      itemBuilder: (context, index) {
+        final data = comments[index].data() as Map<String, dynamic>;
+        final username = data['username'] ?? 'User';
+        final text = data['text'] ?? '';
+        final timestamp = data['timestamp'] as Timestamp?;
+        final timeText =
+            timestamp != null ? _formatCommentTime(timestamp.toDate()) : '';
+
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CircleAvatar(
+                radius: 15,
+                backgroundColor: Colors.grey[800],
+                child: Text(
+                  username.isNotEmpty ? username[0].toUpperCase() : 'U',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          username,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          timeText,
+                          style: const TextStyle(fontSize: 11, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      text,
+                      style: const TextStyle(fontSize: 13.5, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  },
+),
+// ---------- END COMMENT SECTION ----------
                         ],
                       ),
                     ),
