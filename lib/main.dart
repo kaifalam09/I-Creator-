@@ -1729,7 +1729,12 @@ String _formatCommentTime(DateTime dt) {
     controller?.dispose();
     super.dispose();
   }
-
+@override
+void dispose() {
+  controller?.dispose();
+  _commentController.dispose(); // NEW
+  super.dispose();
+}
   @override
   Widget build(BuildContext context) {
     return Scaffold(
