@@ -39,7 +39,6 @@ class VideoModel {
   final String? networkUrl;
   final String? filePath;
   final String description;
-final String description;
   final int likeCount;      // ADD THIS
   final int dislikeCount;   // ADD THIS
   const VideoModel({
@@ -50,7 +49,6 @@ final String description;
     this.viewCount = 0,
     this.networkUrl,
     this.filePath,
-    this.description = '',
     this.description = '',
     this.likeCount = 0,      // ADD THIS
     this.dislikeCount = 0,   // ADD THIS
