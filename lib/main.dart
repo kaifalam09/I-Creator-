@@ -487,7 +487,7 @@ TextField(
 
                     final docRef = await FirebaseFirestore.instance
     .collection('videos')
-    .add(newVideo.toMap());
+    .add(savedVideo.toMap());
 
 final savedVideo = VideoModel(
   id: docRef.id,          // ← yahan real Firestore ID assign
