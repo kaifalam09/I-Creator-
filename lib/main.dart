@@ -485,21 +485,22 @@ TextField(
                       return;
                     }
 
-                    final newVideo = VideoModel(
-                      title: title,
-                      channel: UserSession.channelName,
-                      type: type,
-                    
-                      networkUrl: uploadedUrl,description: descriptionController.text.trim(),
-                    );
+                    final docRef = await FirebaseFirestore.instance
+    .collection('videos')
+    .add(newVideo.toMap());
 
-                    await FirebaseFirestore.instance
-                        .collection('videos')
-                        .add(newVideo.toMap());
+final savedVideo = VideoModel(
+  id: docRef.id,          // ← yahan real Firestore ID assign
+  title: title,
+  channel: UserSession.channelName,
+  type: type,
+  networkUrl: uploadedUrl,
+  description: descriptionController.text.trim(),
+);
 
-                    setState(() {
-                      globalVideos.insert(0, newVideo);
-                    });
+setState(() {
+  globalVideos.insert(0, savedVideo);
+});
 
                     if (!mounted) return;
 
