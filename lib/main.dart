@@ -73,8 +73,9 @@ class VideoModel {
       'viewCount': viewCount,
       'networkUrl': networkUrl,
       'description': description,
-        'likeCount': likeCount,       // ADD THIS
-      };
+'likeCount': likeCount,
+'dislikeCount': dislikeCount,
+};
     
   }
 
