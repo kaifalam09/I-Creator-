@@ -912,7 +912,7 @@ class _VideoCardState
   @override
   void dispose() {
     controller?.dispose();
-
+_commentController.dispose(); // NEW
     super.dispose();
   }
 
