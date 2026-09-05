@@ -89,8 +89,8 @@ class VideoModel {
       description: map['description'] ?? '',
       likeCount: map['likeCount'] ?? 0,
       dislikeCount: map['dislikeCount'] ?? 0,
+   );
   }
-    );
   }
 }
 
