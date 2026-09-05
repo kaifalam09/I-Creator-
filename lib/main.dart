@@ -51,6 +51,10 @@ final String description;
     this.networkUrl,
     this.filePath,
     this.description = '',
+    this.description = '',
+    this.likeCount = 0,      // ADD THIS
+    this.dislikeCount = 0,   // ADD THIS
+  });
   });
 
   String get views {
