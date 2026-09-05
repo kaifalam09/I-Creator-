@@ -485,12 +485,20 @@ TextField(
                       return;
                     }
 
-                    final docRef = await FirebaseFirestore.instance
+                    final newVideo = VideoModel(
+  title: title,
+  channel: UserSession.channelName,
+  type: type,
+  networkUrl: uploadedUrl,
+  description: descriptionController.text.trim(),
+);
+
+final docRef = await FirebaseFirestore.instance
     .collection('videos')
-    .add(savedVideo.toMap());
+    .add(newVideo.toMap());
 
 final savedVideo = VideoModel(
-  id: docRef.id,          // ← yahan real Firestore ID assign
+  id: docRef.id,
   title: title,
   channel: UserSession.channelName,
   type: type,
