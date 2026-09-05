@@ -1711,7 +1711,7 @@ Future<void> _postComment() async {
     'text': text,
     'timestamp': FieldValue.serverTimestamp(),
   });
-
+if (!mounted) return; // NEW
   _commentController.clear();
   FocusScope.of(context).unfocus();
 }
