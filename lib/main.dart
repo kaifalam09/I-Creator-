@@ -73,7 +73,6 @@ class VideoModel {
       'viewCount': viewCount,
       'networkUrl': networkUrl,
       'description': description,
-      'description': description,
         'likeCount': likeCount,       // ADD THIS
       };
     
