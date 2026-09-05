@@ -1692,7 +1692,38 @@ final TextEditingController _commentController = TextEditingController(); // NEW
       }
     }
   }
+Future<void> _postComment() async {
+  final text = _commentController.text.trim();
+  if (text.isEmpty) return;
 
+  if (!UserSession.isLoggedIn) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Please sign in to comment')),
+    );
+    return;
+  }
+
+  if (widget.video.id == null) return;
+
+  await FirebaseFirestore.instance.collection('comments').add({
+    'videoId': widget.video.id,
+    'username': UserSession.channelName,
+    'text': text,
+    'timestamp': FieldValue.serverTimestamp(),
+  });
+
+  _commentController.clear();
+  FocusScope.of(context).unfocus();
+}
+
+String _formatCommentTime(DateTime dt) {
+  final diff = DateTime.now().difference(dt);
+  if (diff.inMinutes < 1) return 'just now';
+  if (diff.inMinutes < 60) return '${diff.inMinutes}m ago';
+  if (diff.inHours < 24) return '${diff.inHours}h ago';
+  if (diff.inDays < 30) return '${diff.inDays}d ago';
+  return '${dt.day}/${dt.month}/${dt.year}';
+}
   @override
   void dispose() {
     controller?.dispose();
