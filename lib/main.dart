@@ -1724,11 +1724,7 @@ String _formatCommentTime(DateTime dt) {
   if (diff.inDays < 30) return '${diff.inDays}d ago';
   return '${dt.day}/${dt.month}/${dt.year}';
 }
-  @override
-  void dispose() {
-    controller?.dispose();
-    super.dispose();
-  }
+
 @override
 void dispose() {
   controller?.dispose();
