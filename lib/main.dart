@@ -490,7 +490,7 @@ TextField(
                       channel: UserSession.channelName,
                       type: type,
                     
-                      networkUrl: uploadedUrl,
+                      networkUrl: uploadedUrl,description: descriptionController.text.trim(),
                     );
 
                     await FirebaseFirestore.instance
