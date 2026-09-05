@@ -55,7 +55,7 @@ final String description;
     this.likeCount = 0,      // ADD THIS
     this.dislikeCount = 0,   // ADD THIS
   });
-  });
+  
 
   String get views {
     if (viewCount >= 1000000) {
@@ -79,7 +79,7 @@ final String description;
         'likeCount': likeCount,       // ADD THIS
         'dislikeCount': dislikeCount, // ADD THIS
       };
-    };
+    
   }
 
   factory VideoModel.fromMap(Map<String, dynamic> map, String docId) {
