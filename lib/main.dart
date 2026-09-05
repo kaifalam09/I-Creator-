@@ -93,7 +93,6 @@ class VideoModel {
    );
   }
   }
-}
 
 Future<void> incrementViewCount(String videoId) async {
   await FirebaseFirestore.instance
