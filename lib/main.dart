@@ -185,15 +185,37 @@ class _MainScreenState extends State<MainScreen> {
   final ImagePicker picker = ImagePicker();
 
   @override
-  void initState() {
-    super.initState();
-    final currentUser = FirebaseAuth.instance.currentUser;
-    if (currentUser != null) {
+void initState() {
+      super.initState();
+      _loadUserSession();
+    }
+
+    Future<void> _loadUserSession() async {
+      final currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser == null) return;
+
       UserSession.isLoggedIn = true;
       UserSession.email = currentUser.email ?? '';
       UserSession.channelName = currentUser.displayName ?? 'My Channel';
+
+      final doc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(currentUser.uid)
+          .get();
+
+      if (doc.exists) {
+        if (doc.data()?['channelName'] != null) {
+          UserSession.channelName = doc.data()!['channelName'];
+        }
+        if (doc.data()?['photoUrl'] != null) {
+          UserSession.photoUrl = doc.data()!['photoUrl'];
+        }
+      }
+
+      if (mounted) {
+        setState(() {});
+      }
     }
-  }
   // ==========================================================
   // CREATE MENU
   // ==========================================================
