@@ -1678,7 +1678,9 @@ final TextEditingController _commentController = TextEditingController(); // NEW
   void initState() {
     super.initState();
     initializeVideo();
-
+ _likeCount = widget.video.likeCount;
+    _dislikeCount = widget.video.dislikeCount;
+    _loadUserReaction();
     if (widget.video.id != null) {
       incrementViewCount(widget.video.id!);
     }
