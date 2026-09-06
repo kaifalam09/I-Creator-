@@ -1567,23 +1567,51 @@ Future<void> editChannelName() async {
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.end,
                         children: [
+                          GestureDetector(
+                      onTap: _pickAndUploadPhoto,
+                      child: Stack(
+                        children: [
                           CircleAvatar(
                             radius: 40,
                             backgroundColor: Colors.white,
                             child: CircleAvatar(
                               radius: 37,
                               backgroundColor: Colors.redAccent,
-                              child: Text(
-                                UserSession.channelName.isNotEmpty
-                                    ? UserSession.channelName[0].toUpperCase()
-                                    : 'U',
-                                style: const TextStyle(
-                                  fontSize: 30,
-                                  color: Colors.white,
-                                ),
+                              backgroundImage: UserSession.photoUrl.isNotEmpty
+                                  ? MemoryImage(base64Decode(UserSession.photoUrl))
+                                  : null,
+                              child: UserSession.photoUrl.isEmpty
+                                  ? Text(
+                                      UserSession.channelName.isNotEmpty
+                                          ? UserSession.channelName[0].toUpperCase()
+                                          : 'U',
+                                      style: const TextStyle(
+                                        fontSize: 30,
+                                        color: Colors.white,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 0,
+                            right: 0,
+                            child: Container(
+                              padding: const EdgeInsets.all(4),
+                              decoration: const BoxDecoration(
+                                color: Colors.black,
+                                shape: BoxShape.circle,
+                              ),
+                              child: const Icon(
+                                Icons.camera_alt,
+                                size: 14,
+                                color: Colors.white,
                               ),
                             ),
                           ),
+                        ],
+                      ),
+                    ),
                         ],
                       ),
                     ),
