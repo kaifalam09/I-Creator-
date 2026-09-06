@@ -24,6 +24,7 @@ class UserSession {
   static bool isLoggedIn = false;
   static String channelName = 'Guest User';
   static String email = '';
+  static String photoUrl = '';
 }
 
 // ============================================================
