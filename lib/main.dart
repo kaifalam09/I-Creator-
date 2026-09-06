@@ -1685,6 +1685,7 @@ final TextEditingController _commentController = TextEditingController(); // NEW
     _likeCount = widget.video.likeCount;
     _dislikeCount = widget.video.dislikeCount;
     _loadUserReaction();
+  }
     Future<void> _loadUserReaction() async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null || widget.video.id == null) return;
