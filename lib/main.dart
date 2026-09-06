@@ -1893,6 +1893,50 @@ void dispose() {
                       style: const TextStyle(color: Colors.grey, fontSize: 13),
                     ),
                     const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => _toggleReaction('like'),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.thumb_up,
+                                size: 20,
+                                color: _userReaction == 'like'
+                                    ? Colors.redAccent
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '$_likeCount',
+                                style: const TextStyle(color: Colors.grey, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 24),
+                        GestureDetector(
+                          onTap: () => _toggleReaction('dislike'),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.thumb_down,
+                                size: 20,
+                                color: _userReaction == 'dislike'
+                                    ? Colors.redAccent
+                                    : Colors.grey,
+                              ),
+                              const SizedBox(width: 6),
+                              Text(
+                                '$_dislikeCount',
+                                style: const TextStyle(color: Colors.grey, fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
 
                     // ---------- NEW: DESCRIPTION BLOCK ----------
                     if (widget.video.description.isNotEmpty)
