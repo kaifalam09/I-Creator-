@@ -1414,6 +1414,49 @@ Future<void> editChannelName() async {
 
     widget.onStateChanged();
 }
+  Future<void> _pickAndUploadPhoto() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 300,
+      maxHeight: 300,
+      imageQuality: 60,
+    );
+
+    if (pickedFile == null) return;
+
+    final bytes = await File(pickedFile.path).readAsBytes();
+    final base64Image = base64Encode(bytes);
+
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).set({
+        'photoUrl': base64Image,
+      }, SetOptions(merge: true));
+
+      setState(() {
+        UserSession.photoUrl = base64Image;
+        isLoading = false;
+      });
+
+      widget.onStateChanged();
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+      });
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Photo upload failed: $e')),
+        );
+      }
+    }
+  }
   Widget _buildMyVideosGrid() {
     final myVideos = globalVideos
         .where((v) => v.channel == UserSession.channelName)
