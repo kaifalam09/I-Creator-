@@ -1685,6 +1685,84 @@ final TextEditingController _commentController = TextEditingController(); // NEW
     _likeCount = widget.video.likeCount;
     _dislikeCount = widget.video.dislikeCount;
     _loadUserReaction();
+    Future<void> _loadUserReaction() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || widget.video.id == null) return;
+
+    final doc = await FirebaseFirestore.instance
+        .collection('likes')
+        .doc('${widget.video.id}_${user.uid}')
+        .get();
+
+    if (doc.exists && mounted) {
+      setState(() {
+        _userReaction = doc.data()?['type'];
+      });
+    }
+  }
+
+  Future<void> _toggleReaction(String type) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+    if (widget.video.id == null) return;
+
+    final videoId = widget.video.id!;
+    final reactionDocId = '${videoId}_${user.uid}';
+    final reactionRef =
+        FirebaseFirestore.instance.collection('likes').doc(reactionDocId);
+    final videoRef =
+        FirebaseFirestore.instance.collection('videos').doc(videoId);
+
+    final previousReaction = _userReaction;
+
+    setState(() {
+      if (previousReaction == type) {
+        _userReaction = null;
+        if (type == 'like') {
+          _likeCount--;
+        } else {
+          _dislikeCount--;
+        }
+      } else {
+        if (previousReaction == 'like') _likeCount--;
+        if (previousReaction == 'dislike') _dislikeCount--;
+
+        _userReaction = type;
+        if (type == 'like') {
+          _likeCount++;
+        } else {
+          _dislikeCount++;
+        }
+      }
+    });
+
+    try {
+      if (previousReaction == type) {
+        await reactionRef.delete();
+        await videoRef.update({
+          type == 'like' ? 'likeCount' : 'dislikeCount':
+              FieldValue.increment(-1),
+        });
+      } else {
+        await reactionRef.set({
+          'videoId': videoId,
+          'userId': user.uid,
+          'type': type,
+        });
+
+        Map<String, dynamic> updates = {
+          type == 'like' ? 'likeCount' : 'dislikeCount':
+              FieldValue.increment(1),
+        };
+        if (previousReaction != null) {
+          updates[previousReaction == 'like' ? 'likeCount' : 'dislikeCount'] =
+              FieldValue.increment(-1);
+        }
+        await videoRef.update(updates);
+      }
+    } catch (e) {
+      debugPrint('Reaction error: $e');
+    }
   }
 
   Future<void> initializeVideo() async {
