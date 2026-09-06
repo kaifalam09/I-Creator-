@@ -1671,6 +1671,9 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   
 bool _showFullDescription = false; // NEW
 final TextEditingController _commentController = TextEditingController(); // NEW
+ String? _userReaction;
+  int _likeCount = 0;
+  int _dislikeCount = 0;
   @override
   void initState() {
     super.initState();
